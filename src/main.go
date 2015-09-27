@@ -42,7 +42,6 @@ func startClient() {
 		return
 	}
 	client := core.CreateClient(c)
-	client.Listen()
 	defer client.Conn.Close()
 
 	in := bufio.NewReader(os.Stdin)
@@ -51,6 +50,7 @@ func startClient() {
 	go func() {
 		for data := range client.Incoming {
 			out.WriteString(data)
+			out.Flush()
 		}
 	}()
 	// go func(c net.Conn, m chan string) {

@@ -11,54 +11,52 @@ type Xtime struct {
 	question string
 }
 
+type IClient interface {
+	Read() (s string, err error)
+	Write(outgoing chan string)
+}
+
 type Client struct {
-	Conn     net.Conn
+	client IClient
+	// Conn     net.Conn
 	Group    int
 	Xt       Xtime
 	Incoming chan string
 	Outgoing chan string
 }
 
-func CreateClient(conn net.Conn) (client *Client) {
+func CreateClient(ic IClient) (client *Client) {
 	client = &Client{
-		Conn:     conn,
+		client: ic,
+		// Conn:     conn,
 		Incoming: make(chan string),
 		Outgoing: make(chan string),
 	}
+
+	go client.client.Read()
+	go client.client.Write(client.Outgoing)
+
 	return
 }
 
-func (client *Client) Listen() {
-	go client.Read()
-	go client.Write()
-	// go func(){
-	// 	for {
-	// 		select {
-	// 		case receive := <- client
-	// 			log.Println()
-	// 		}
-	// 	}
-	// }()
-}
-
-func (client *Client) Read() {
-	reader := bufio.NewReader(client.Conn)
-	for {
-		if line, _, err := reader.ReadLine(); err == nil {
-			client.Incoming <- string(line)
-		} else {
-			fmt.Printf("Read error: %s\n", err)
-			return
-		}
-
-	}
-}
-
-func (client *Client) Write() {
-	writer := bufio.NewWriter(client.Conn)
-	for data := range client.Outgoing {
-		writer.WriteString(data + "\n")
-		// q: why flush is necessary? a:using buf mean: it won't send immedicately until buf is full
-		writer.Flush()
-	}
-}
+// func (client *Client) TRead() {
+// 	reader := bufio.NewReader(client.Conn)
+// 	for {
+// 		if line, _, err := reader.ReadLine(); err == nil {
+// 			client.Incoming <- string(line)
+// 		} else {
+// 			fmt.Printf("Read error: %s\n", err)
+// 			return
+// 		}
+//
+// 	}
+// }
+//
+// func (client *Client) TWrite() {
+// 	writer := bufio.NewWriter(client.Conn)
+// 	for data := range client.Outgoing {
+// 		writer.WriteString(data + "\n")
+// 		// q: why flush is necessary? a:using buf mean: it won't send immedicately until buf is full
+// 		writer.Flush()
+// 	}
+// }
