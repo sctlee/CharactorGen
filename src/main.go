@@ -41,8 +41,11 @@ func startClient() {
 		fmt.Println("hahah")
 		return
 	}
-	client := core.CreateClient(c)
-	defer client.Conn.Close()
+
+	ic := &core.TCPClient{
+		Conn: c,
+	}
+	client := core.CreateClient(ic)
 
 	in := bufio.NewReader(os.Stdin)
 	out := bufio.NewWriter(os.Stdout)
@@ -62,6 +65,7 @@ func startClient() {
 
 	for {
 		line, _, _ := in.ReadLine()
+		fmt.Println("7")
 		client.Outgoing <- string(line)
 	}
 }

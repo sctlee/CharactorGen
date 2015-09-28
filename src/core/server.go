@@ -1,8 +1,8 @@
 package core
 
 import (
+	"fmt"
 	"log"
-	"net"
 )
 
 const (
@@ -17,10 +17,10 @@ type IServer interface {
 type ClientTable map[IClient]*Client
 
 type Server struct {
-	server   IServer
-	listener net.Listener
-	clients  ClientTable
-	pending  chan IClient
+	s IServer
+	// listener net.Listener
+	clients ClientTable
+	pending chan IClient
 	// quiting  chan net.Conn
 	incoming chan string
 	outgoing chan string
@@ -28,7 +28,7 @@ type Server struct {
 
 func CreateServer() (server *Server) {
 	server = &Server{
-		server:  &TCPServer{},
+		s:       &TCPServer{},
 		clients: make(ClientTable),
 		pending: make(chan IClient),
 		// quiting:  make(chan net.Conn),
@@ -40,12 +40,14 @@ func CreateServer() (server *Server) {
 
 func (self *Server) Listen() {
 	go func() {
+		fmt.Println("4")
 		for {
 			select {
 			case msg := <-self.incoming:
 				log.Println(msg)
-			case conn := <-self.pending:
-				self.Join(conn)
+			case client := <-self.pending:
+				fmt.Println("5")
+				self.Join(client)
 				//
 				// case conn := <-server.quiting:
 			}
@@ -60,6 +62,7 @@ func (self *Server) Join(ic IClient) {
 	LogClose()
 
 	go func() {
+		fmt.Println("6")
 		for msg := range client.Incoming {
 			// package msg whish conn
 			// msg = fmt.Sprintf("format string", a ...interface{})
@@ -72,16 +75,17 @@ func (self *Server) Join(ic IClient) {
 
 func (self *Server) Start(port string) {
 
-	self.server.Listen(port)
+	self.s.Listen(port)
 	// l, _ := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	// self.listener = l
 	// defer self.listener.Close()
 
 	// chan listen
+	fmt.Println("3")
 	self.Listen()
 
 	for {
-		self.pending <- self.server.Accept()
+		self.pending <- self.s.Accept()
 		// if conn, err := self.listener.Accept(); err == nil {
 		// 	self.pending <- conn
 		// go func(c net.Conn) {

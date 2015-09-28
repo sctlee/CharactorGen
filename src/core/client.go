@@ -1,23 +1,17 @@
 package core
 
-import (
-	"bufio"
-	"fmt"
-	"net"
-)
-
 type Xtime struct {
 	isExist  bool
 	question string
 }
 
 type IClient interface {
-	Read() (s string, err error)
-	Write(outgoing chan string)
+	TRead(incoming chan string)
+	TWrite(outgoing chan string)
 }
 
 type Client struct {
-	client IClient
+	c IClient
 	// Conn     net.Conn
 	Group    int
 	Xt       Xtime
@@ -27,14 +21,14 @@ type Client struct {
 
 func CreateClient(ic IClient) (client *Client) {
 	client = &Client{
-		client: ic,
+		c: ic,
 		// Conn:     conn,
 		Incoming: make(chan string),
 		Outgoing: make(chan string),
 	}
 
-	go client.client.Read()
-	go client.client.Write(client.Outgoing)
+	go client.c.TRead(client.Incoming)
+	go client.c.TWrite(client.Outgoing)
 
 	return
 }
