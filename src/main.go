@@ -65,7 +65,6 @@ func startClient() {
 
 	for {
 		line, _, _ := in.ReadLine()
-		fmt.Println("7")
 		client.Outgoing <- string(line)
 	}
 }
