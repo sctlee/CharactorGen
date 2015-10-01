@@ -6,6 +6,6 @@ import (
 
 func MsgRoute(client *Client, msg string) bool {
 	fmt.Printf("route %v msg:%s", client, msg)
-	client.Outgoing <- msg
+	client.outgoing <- msg
 	return true
 }

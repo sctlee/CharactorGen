@@ -51,8 +51,8 @@ func startClient() {
 	out := bufio.NewWriter(os.Stdout)
 
 	go func() {
-		for data := range client.Incoming {
-			out.WriteString(data)
+		for {
+			out.WriteString(client.GetIncoming() + "\n")
 			out.Flush()
 		}
 	}()
@@ -65,6 +65,6 @@ func startClient() {
 
 	for {
 		line, _, _ := in.ReadLine()
-		client.Outgoing <- string(line)
+		client.PutOutgoing(string(line))
 	}
 }

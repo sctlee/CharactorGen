@@ -59,7 +59,7 @@ func (self *Server) Join(ic IClient) {
 	self.clients[ic] = client
 
 	go func() {
-		for msg := range client.Incoming {
+		for msg := range client.incoming {
 			// package msg whish conn
 			// msg = fmt.Sprintf("format string", a ...interface{})
 			if !MsgRoute(client, msg) {
