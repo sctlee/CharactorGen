@@ -63,7 +63,8 @@ func (self *Server) Join(ic IClient) {
 			// package msg whish conn
 			// msg = fmt.Sprintf("format string", a ...interface{})
 			if !MsgRoute(client, msg) {
-				self.incoming <- msg
+				client.PutOutgoing("command error, Usage:'chatroom join 1','chatroom send hello'")
+				// self.incoming <- msg
 			}
 		}
 	}()

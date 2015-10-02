@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"core"
+	"example/chatroom"
 	"fmt"
 	"net"
 	"os"
@@ -31,6 +32,10 @@ func main() {
 func startServer() {
 	fmt.Println("server")
 	server := core.CreateServer()
+	// Register Router
+	chatroom := &chatroom.ChatRoomFeature{}
+	core.RegisterRuoter("chatroom", chatroom)
+	// End Register
 	server.Start("9000")
 }
 
