@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"core"
+	"example/chatroom"
 	"fmt"
 	"net"
 	"os"
@@ -31,6 +32,10 @@ func main() {
 func startServer() {
 	fmt.Println("server")
 	server := core.CreateServer()
+	// Register Router
+	chatroom := &chatroom.ChatRoomFeature{}
+	core.RegisterRuoter("chatroom", chatroom)
+	// End Register
 	server.Start("9000")
 }
 
@@ -51,8 +56,8 @@ func startClient() {
 	out := bufio.NewWriter(os.Stdout)
 
 	go func() {
-		for data := range client.Incoming {
-			out.WriteString(data)
+		for {
+			out.WriteString(client.GetIncoming() + "\n")
 			out.Flush()
 		}
 	}()
@@ -65,7 +70,6 @@ func startClient() {
 
 	for {
 		line, _, _ := in.ReadLine()
-		fmt.Println("7")
-		client.Outgoing <- string(line)
+		client.PutOutgoing(string(line))
 	}
 }

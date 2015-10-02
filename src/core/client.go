@@ -11,26 +11,31 @@ type IClient interface {
 }
 
 type Client struct {
-	c IClient
-	// Conn     net.Conn
-	Group    int
-	Xt       Xtime
-	Incoming chan string
-	Outgoing chan string
+	c        IClient
+	incoming chan string
+	outgoing chan string
 }
 
 func CreateClient(ic IClient) (client *Client) {
 	client = &Client{
 		c: ic,
 		// Conn:     conn,
-		Incoming: make(chan string),
-		Outgoing: make(chan string),
+		incoming: make(chan string),
+		outgoing: make(chan string),
 	}
 
-	go client.c.TRead(client.Incoming)
-	go client.c.TWrite(client.Outgoing)
+	go client.c.TRead(client.incoming)
+	go client.c.TWrite(client.outgoing)
 
 	return
+}
+
+func (self *Client) GetIncoming() string {
+	return <-self.incoming
+}
+
+func (self *Client) PutOutgoing(str string) {
+	self.outgoing <- str
 }
 
 // func (client *Client) TRead() {

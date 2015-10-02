@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -12,6 +11,7 @@ const (
 type IServer interface {
 	Listen(port string)
 	Accept() (tc *TCPClient)
+	Close()
 }
 
 type ClientTable map[IClient]*Client
@@ -38,51 +38,46 @@ func CreateServer() (server *Server) {
 	return
 }
 
-func (self *Server) Listen() {
+func (self *Server) Listen(port string) {
 	go func() {
-		fmt.Println("4")
 		for {
 			select {
 			case msg := <-self.incoming:
 				log.Println(msg)
 			case client := <-self.pending:
-				fmt.Println("5")
 				self.Join(client)
 				//
 				// case conn := <-server.quiting:
 			}
 		}
 	}()
+	self.s.Listen(port)
 }
 
 func (self *Server) Join(ic IClient) {
 	client := CreateClient(ic)
 	self.clients[ic] = client
 
-	LogClose()
-
 	go func() {
-		fmt.Println("6")
-		for msg := range client.Incoming {
+		for msg := range client.incoming {
 			// package msg whish conn
 			// msg = fmt.Sprintf("format string", a ...interface{})
 			if !MsgRoute(client, msg) {
-				self.incoming <- msg
+				client.PutOutgoing("command error, Usage:'chatroom join 1','chatroom send hello'")
+				// self.incoming <- msg
 			}
 		}
 	}()
 }
 
 func (self *Server) Start(port string) {
-
-	self.s.Listen(port)
+	self.Listen(port)
+	logger.Println("server start")
 	// l, _ := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	// self.listener = l
 	// defer self.listener.Close()
-
+	defer self.s.Close()
 	// chan listen
-	fmt.Println("3")
-	self.Listen()
 
 	for {
 		self.pending <- self.s.Accept()
