@@ -2,7 +2,7 @@ package chatroom
 
 import (
 	"core"
-	"core/user"
+	"example/user"
 	"fmt"
 	"strings"
 )
@@ -28,7 +28,7 @@ func Route(url string, client *core.Client) {
 		client.PutOutgoing("you have joined <all> chatroom")
 	case "send":
 		for _, c := range ChatRoomList["all"].clients {
-			c.PutOutgoing(fmt.Sprintf("%s says: %s", user.User(client), strings.TrimSpace(url[i:])))
+			c.PutOutgoing(fmt.Sprintf("%s says: %s", user.GetUserName(client), strings.TrimSpace(url[i:])))
 		}
 	}
 }

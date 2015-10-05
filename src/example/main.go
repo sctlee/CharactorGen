@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"core"
 	"example/chatroom"
+	"example/user"
 	"fmt"
 	"net"
 	"os"
@@ -34,6 +35,7 @@ func startServer() {
 	server := core.CreateServer()
 	// Register Router
 	core.RegisterRouter("chatroom", chatroom.Route)
+	core.RegisterRouter("user", user.Route)
 	// End Register
 	server.Start("9000")
 }

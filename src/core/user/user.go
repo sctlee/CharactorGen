@@ -13,7 +13,7 @@ func init() {
 	core.RegisterRouter("user", Route)
 }
 
-func User(client *core.Client) string {
+func GetUserName(client *core.Client) string {
 	s := UserList[client]
 	if s != "" {
 		return s
