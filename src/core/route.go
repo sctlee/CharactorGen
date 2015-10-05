@@ -6,18 +6,15 @@ import (
 	// "secret/chatroom"
 )
 
-var routeList map[string]routeSet
+type route func(url string, c *Client)
 
-type routeSet interface {
-	Route(url string, c *Client)
-}
+var routeList map[string]route
 
 func init() {
-	routeList = make(map[string]routeSet)
-	// routeList["chatroom"] = &chatroom.ChatRoom{}
+	routeList = make(map[string]route)
 }
 
-func RegisterRuoter(key string, value routeSet) {
+func RegisterRouter(key string, value route) {
 	routeList[key] = value
 }
 
@@ -27,7 +24,8 @@ func MsgRoute(client *Client, msg string) bool {
 	fmt.Println(i)
 	if i != -1 {
 		command := msg[:i]
-		routeList[command].Route(msg[i:], client)
+		fmt.Println(msg[i:])
+		routeList[command](msg[i:], client)
 		return true
 	}
 	return false
