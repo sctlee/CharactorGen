@@ -33,8 +33,7 @@ func startServer() {
 	fmt.Println("server")
 	server := core.CreateServer()
 	// Register Router
-	chatroom := &chatroom.ChatRoomFeature{}
-	core.RegisterRuoter("chatroom", chatroom)
+	core.RegisterRouter("chatroom", chatroom.Route)
 	// End Register
 	server.Start("9000")
 }

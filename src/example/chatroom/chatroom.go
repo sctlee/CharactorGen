@@ -2,11 +2,10 @@ package chatroom
 
 import (
 	"core"
+	"core/user"
+	"fmt"
 	"strings"
 )
-
-type ChatRoomFeature struct {
-}
 
 type ChatRoom struct {
 	clients []*core.Client
@@ -19,7 +18,7 @@ func init() {
 	ChatRoomList["all"] = &ChatRoom{}
 }
 
-func (self *ChatRoomFeature) Route(url string, client *core.Client) {
+func Route(url string, client *core.Client) {
 	url = strings.TrimSpace(url)
 	i := strings.Index(url, " ")
 	action := url[:i]
@@ -29,7 +28,7 @@ func (self *ChatRoomFeature) Route(url string, client *core.Client) {
 		client.PutOutgoing("you have joined <all> chatroom")
 	case "send":
 		for _, c := range ChatRoomList["all"].clients {
-			c.PutOutgoing(strings.TrimSpace(url[i:]))
+			c.PutOutgoing(fmt.Sprintf("%s says: %s", user.User(client), strings.TrimSpace(url[i:])))
 		}
 	}
 }
