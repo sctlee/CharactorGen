@@ -1,14 +1,14 @@
 package chatroom
 
 import (
-	"core"
+	"core/client"
 	"example/user"
 	"fmt"
 	"strings"
 )
 
 type ChatRoom struct {
-	clients []*core.Client
+	clients []*client.Client
 }
 
 var ChatRoomList map[string]*ChatRoom
@@ -18,7 +18,7 @@ func init() {
 	ChatRoomList["all"] = &ChatRoom{}
 }
 
-func Route(url string, client *core.Client) {
+func Route(url string, client *client.Client) {
 	url = strings.TrimSpace(url)
 	i := strings.Index(url, " ")
 	action := url[:i]

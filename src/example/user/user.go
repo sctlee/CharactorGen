@@ -1,11 +1,11 @@
 package user
 
 import (
-	"core"
+	"core/client"
 	"fmt"
 )
 
-func GetUserName(client *core.Client) string {
+func GetUserName(client *client.Client) string {
 	s := userList[client]
 	if s != nil {
 		return s.Name
@@ -14,7 +14,7 @@ func GetUserName(client *core.Client) string {
 	}
 }
 
-func SetUserName(client *core.Client, paramString string) {
+func SetUserName(client *client.Client, paramString string) {
 	name := paramString
 	userList[client] = &User{
 		Name: name,
