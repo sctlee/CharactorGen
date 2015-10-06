@@ -1,4 +1,4 @@
-package core
+package client
 
 type Xtime struct {
 	isExist  bool
@@ -30,8 +30,8 @@ func CreateClient(ic IClient) (client *Client) {
 	return
 }
 
-func (self *Client) GetIncoming() string {
-	return <-self.incoming
+func (self *Client) GetIncoming() chan string {
+	return self.incoming
 }
 
 func (self *Client) PutOutgoing(str string) {

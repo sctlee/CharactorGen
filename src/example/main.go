@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"core"
+	"core/client"
+	"core/route"
 	"example/chatroom"
 	"example/user"
 	"fmt"
@@ -34,8 +36,8 @@ func startServer() {
 	fmt.Println("server")
 	server := core.CreateServer()
 	// Register Router
-	core.RegisterRouter("chatroom", chatroom.Route)
-	core.RegisterRouter("user", user.Route)
+	route.RegisterRouter("chatroom", chatroom.Route)
+	route.RegisterRouter("user", user.Route)
 	// End Register
 	server.Start("9000")
 }
@@ -51,14 +53,14 @@ func startClient() {
 	ic := &core.TCPClient{
 		Conn: c,
 	}
-	client := core.CreateClient(ic)
+	client := client.CreateClient(ic)
 
 	in := bufio.NewReader(os.Stdin)
 	out := bufio.NewWriter(os.Stdout)
 
 	go func() {
-		for {
-			out.WriteString(client.GetIncoming() + "\n")
+		for msg := range client.GetIncoming() {
+			out.WriteString(msg + "\n")
 			out.Flush()
 		}
 	}()

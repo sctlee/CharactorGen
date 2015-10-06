@@ -1,18 +1,18 @@
 package user
 
 import (
-	"core"
+	"core/client"
 	"fmt"
 	"strings"
 )
 
-var userList map[*core.Client]*User
+var userList map[*client.Client]*User
 
 func init() {
-	userList = make(map[*core.Client]*User)
+	userList = make(map[*client.Client]*User)
 }
 
-func Route(url string, client *core.Client) {
+func Route(url string, client *client.Client) {
 	url = strings.TrimSpace(url)
 	fmt.Println(url)
 	i := strings.Index(url, " ")
