@@ -1,19 +1,18 @@
 package user
 
 import (
-	"core"
+	"core/client"
 	"fmt"
 	"strings"
 )
 
-var UserList map[*core.Client]string
+var UserList map[*client.Client]string
 
 func init() {
-	UserList = make(map[*core.Client]string)
-	core.RegisterRouter("user", Route)
+	UserList = make(map[*client.Client]string)
 }
 
-func GetUserName(client *core.Client) string {
+func GetUserName(client *client.Client) string {
 	s := UserList[client]
 	if s != "" {
 		return s
@@ -22,7 +21,7 @@ func GetUserName(client *core.Client) string {
 	}
 }
 
-func Route(url string, client *core.Client) {
+func Route(url string, client *client.Client) {
 	url = strings.TrimSpace(url)
 	fmt.Println(url)
 	i := strings.Index(url, " ")

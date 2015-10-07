@@ -22,6 +22,7 @@ type Server struct {
 	s IServer
 	// listener net.Listener
 	clients ClientTable
+	Router  *route.Router
 	pending chan client.IClient
 	// quiting  chan net.Conn
 	incoming chan string
@@ -32,6 +33,9 @@ func CreateServer() (server *Server) {
 	server = &Server{
 		s:       &TCPServer{},
 		clients: make(ClientTable),
+		Router: &route.Router{
+			RouteList: make(map[string]route.RouteFun),
+		},
 		pending: make(chan client.IClient),
 		// quiting:  make(chan net.Conn),
 		incoming: make(chan string),
@@ -64,7 +68,7 @@ func (self *Server) Join(ic client.IClient) {
 		for msg := range client.GetIncoming() {
 			// package msg whish conn
 			// msg = fmt.Sprintf("format string", a ...interface{})
-			if !route.MsgRoute(client, msg) {
+			if !self.Router.Route(client, msg) {
 				client.PutOutgoing("command error, Usage:'chatroom join 1','chatroom send hello'")
 				// self.incoming <- msg
 			}
