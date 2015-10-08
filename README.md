@@ -20,6 +20,7 @@ go install example
 ```
 
 # Usage
+#### Quick Start
 If you have installed the chatroom successfully, you will see the binary file `example` in
 `/path/to/chatroom/bin`, you can use it as the following:
 ```shell
@@ -29,3 +30,21 @@ If you have installed the chatroom successfully, you will see the binary file `e
 > chatroom join 1
 > chatroom send hello
 ```
+
+#### Chatroom
+Chatroom feature has three command: list, join, send
+```
+> chatroom list
+> chatroom join 1
+> chatroom send hello
+```
+
+#### User
+User feature has three command: login, logout, setName
+```
+> user login lhc lhc
+> user setName hc
+> user logout
+```
+
+Because db has not been supported, user's name is fake. It means you can't sign up and the name you set can't be saved.
