@@ -1,6 +1,8 @@
 package core
 
 import (
+	"core/client"
+	"core/route"
 	"log"
 )
 
@@ -14,13 +16,14 @@ type IServer interface {
 	Close()
 }
 
-type ClientTable map[IClient]*Client
+type ClientTable map[client.IClient]*client.Client
 
 type Server struct {
 	s IServer
 	// listener net.Listener
 	clients ClientTable
-	pending chan IClient
+	Router  *route.Router
+	pending chan client.IClient
 	// quiting  chan net.Conn
 	incoming chan string
 	outgoing chan string
@@ -30,7 +33,10 @@ func CreateServer() (server *Server) {
 	server = &Server{
 		s:       &TCPServer{},
 		clients: make(ClientTable),
-		pending: make(chan IClient),
+		Router: &route.Router{
+			RouteList: make(map[string]route.RouteFun),
+		},
+		pending: make(chan client.IClient),
 		// quiting:  make(chan net.Conn),
 		incoming: make(chan string),
 		outgoing: make(chan string),
@@ -54,15 +60,15 @@ func (self *Server) Listen(port string) {
 	self.s.Listen(port)
 }
 
-func (self *Server) Join(ic IClient) {
-	client := CreateClient(ic)
+func (self *Server) Join(ic client.IClient) {
+	client := client.CreateClient(ic)
 	self.clients[ic] = client
 
 	go func() {
-		for msg := range client.incoming {
+		for msg := range client.GetIncoming() {
 			// package msg whish conn
 			// msg = fmt.Sprintf("format string", a ...interface{})
-			if !MsgRoute(client, msg) {
+			if !self.Router.Route(client, msg) {
 				client.PutOutgoing("command error, Usage:'chatroom join 1','chatroom send hello'")
 				// self.incoming <- msg
 			}

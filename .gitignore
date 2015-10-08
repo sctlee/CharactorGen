@@ -2,3 +2,4 @@ main
 pkg
 bin
 gen.log
+goenv.sh
