@@ -2,13 +2,14 @@ package main
 
 import (
 	"bufio"
-	"core"
-	"core/client"
-	"example/chatroom"
-	"example/user"
 	"fmt"
 	"net"
 	"os"
+
+	"example/chatroom"
+	"example/user"
+
+	"github.com/sctlee/tcpx"
 )
 
 func main() {
@@ -33,7 +34,7 @@ func main() {
 
 func startServer() {
 	fmt.Println("server")
-	server := core.CreateServer()
+	server := tcpx.CreateServer()
 	// Register Router
 	server.Router.RouteList["chatroom"] = chatroom.Route
 	server.Router.RouteList["user"] = user.Route
@@ -49,10 +50,10 @@ func startClient() {
 		return
 	}
 
-	ic := &core.TCPClient{
+	ic := &tcpx.TCPClient{
 		Conn: c,
 	}
-	client := client.CreateClient(ic)
+	client := tcpx.CreateClient(ic)
 
 	in := bufio.NewReader(os.Stdin)
 	out := bufio.NewWriter(os.Stdout)
