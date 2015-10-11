@@ -1,12 +1,13 @@
 package user
 
 import (
-	"core/client"
 	"fmt"
 	"strings"
+
+	"github.com/sctlee/tcpx"
 )
 
-var userList map[*client.Client]*User
+var userList map[*tcpx.Client]*User
 
 type UserAuth string
 
@@ -22,7 +23,7 @@ func (s UserAuth) String() string {
 	}
 }
 
-func GetUserName(client *client.Client) string {
+func GetUserName(client *tcpx.Client) string {
 	s := userList[client]
 	if s != nil {
 		return s.Name
@@ -31,7 +32,7 @@ func GetUserName(client *client.Client) string {
 	}
 }
 
-func SetUserName(client *client.Client, paramString string) {
+func SetUserName(client *tcpx.Client, paramString string) {
 	name := paramString
 	userList[client] = &User{
 		Name: name,
@@ -39,7 +40,7 @@ func SetUserName(client *client.Client, paramString string) {
 	client.PutOutgoing(fmt.Sprintf("Hello, %s", name))
 }
 
-func Login(client *client.Client, paramString string) {
+func Login(client *tcpx.Client, paramString string) {
 	userInfo := strings.Fields(paramString)
 	if len(userInfo) != 2 {
 		client.PutOutgoing("params number error: Please input correct number of params")
@@ -55,7 +56,7 @@ func Login(client *client.Client, paramString string) {
 	}
 }
 
-func Logout(client *client.Client) {
+func Logout(client *tcpx.Client) {
 	if _, ok := userList[client]; ok {
 		client.PutOutgoing("Logout success!")
 	} else {

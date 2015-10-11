@@ -1,16 +1,17 @@
 package user
 
 import (
-	"core/client"
 	"fmt"
 	"strings"
+
+	"github.com/sctlee/tcpx"
 )
 
 func init() {
-	userList = make(map[*client.Client]*User)
+	userList = make(map[*tcpx.Client]*User)
 }
 
-func Route(url string, client *client.Client) {
+func Route(url string, client *tcpx.Client) {
 	var action string
 	url = strings.TrimSpace(url)
 	i := strings.Index(url, " ")
