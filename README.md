@@ -11,18 +11,26 @@ You should install [Go](http://golang.org) first.
 sudo apt-get install go-lang
 ```
 
-#### Chatroom installation
-If you have installed Go, you can easily install the chatroom using the following commands.
+#### Dependence
+This project is based on [tcpx](http://github.com/sctlee/tcpx) and [utils](http://github.com/sctlee/utils). You can get it by the command:
 ```shell
-cd /path/to/chatroom
-export GOPATH=$GOPATH:`pwd`
+go get github.com/sctlee/tcpx
+go get github.com/sctlee/utils
+```
+Be careful, You may want to `cd /path/to/example` and `export GOPATH=$(pwd):$GOPATH`, the exec the above commands.
+
+#### Example installation
+If you have installed Go and dependences, you can easily install the example using the following commands.
+```shell
+cd /path/to/example
+export GOPATH=$(pwd):$GOPATH
 go install example
 ```
 
 # Usage
 #### Quick Start
-If you have installed the chatroom successfully, you will see the binary file `example` in
-`/path/to/chatroom/bin`, you can use it as the following:
+If you have installed the example successfully, you will see the binary file `example` in
+`/path/to/example/bin`, you can use it as the following:
 ```shell
 ./bin/example server
 # open a new bash
