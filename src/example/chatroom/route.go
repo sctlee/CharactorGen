@@ -1,11 +1,12 @@
 package chatroom
 
 import (
-	"core/client"
 	"strings"
+
+	"github.com/sctlee/tcpx"
 )
 
-func Route(url string, client *client.Client) {
+func Route(url string, client *tcpx.Client) {
 	var action string
 	url = strings.TrimSpace(url)
 	i := strings.Index(url, " ")
