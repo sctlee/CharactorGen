@@ -63,3 +63,10 @@ func Logout(client *tcpx.Client) {
 		client.PutOutgoing("Please login first!")
 	}
 }
+
+func Signup(client *tcpx.Client, paramString string) {
+	userInfo := strings.Fields(paramString)
+	username := userInfo[0]
+	password := userInfo[1]
+	confirm := userInfo[2]
+}
