@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"example/chatroom"
+	"example/db"
 	"example/user"
 
 	"github.com/sctlee/tcpx"
@@ -26,6 +27,7 @@ func main() {
 	case "client":
 		startClient()
 	case "server":
+		db.StartPool()
 		startServer()
 	default:
 		fmt.Println("error")

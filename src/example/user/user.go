@@ -69,4 +69,12 @@ func Signup(client *tcpx.Client, paramString string) {
 	username := userInfo[0]
 	password := userInfo[1]
 	confirm := userInfo[2]
+
+	if strings.EqualFold(password, confirm) {
+		user := &User{
+			Name:     username,
+			Password: password,
+		}
+		user.Save()
+	}
 }

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/sctlee/tcpx"
@@ -26,7 +25,8 @@ func Route(url string, client *tcpx.Client) {
 	case "login":
 		Login(client, strings.TrimSpace(url[i:]))
 	case "logout":
-		fmt.Println("1")
 		Logout(client)
+	case "signup":
+		Signup(client, strings.TrimSpace(url[i:]))
 	}
 }
