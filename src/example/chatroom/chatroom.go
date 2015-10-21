@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"example/user"
 
@@ -25,6 +26,7 @@ var userChatList map[*tcpx.Client]string
 func init() {
 	ChatroomList = make(map[string]*Chatroom, 10)
 	userChatList = make(map[*tcpx.Client]string)
+	go cleanChatrooms()
 }
 
 func initChatrooms() {
@@ -44,10 +46,38 @@ func initChatrooms() {
 	}
 }
 
+//check whether a closed client joined in a chatroom. if has, clean it.
+func cleanChatrooms() {
+	for {
+		select {
+		case <-time.After(time.Second * 2):
+			for k, _ := range userChatList {
+				if k.State == tcpx.CLIENT_STATE_CLOSE {
+					Exit(k)
+				}
+			}
+		}
+	}
+}
+
 func List(client *tcpx.Client) {
 	initChatrooms()
 	client.PutOutgoing(fmt.Sprintf("You can choose one chatroom to join:\n%s",
 		strings.Join(CHATROMMS, "\t")))
+}
+
+func View(client *tcpx.Client, paramString string) {
+	params := strings.Fields(paramString)
+	if len(params) != 1 {
+		client.PutOutgoing("You can only input one param")
+		return
+	}
+	ctName := params[0]
+	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
+		client.PutOutgoing(fmt.Sprintf("%d", len(ChatroomList[ctName].clients)))
+	} else {
+		client.PutOutgoing("the chatroom is not existed")
+	}
 }
 
 func Join(client *tcpx.Client, paramString string) {
@@ -63,6 +93,8 @@ func Join(client *tcpx.Client, paramString string) {
 		userChatList[client] = ctName
 		ChatroomList[ctName].clients = append(ChatroomList[ctName].clients, client)
 		client.PutOutgoing(fmt.Sprintf("you have joined <%s> chatroom", ctName))
+	} else {
+		client.PutOutgoing("the chatroom is not existed")
 	}
 }
 
@@ -73,20 +105,26 @@ func Exit(client *tcpx.Client) {
 				ChatroomList[k].clients = append(ChatroomList[k].clients[:i],
 					ChatroomList[k].clients[i+1:]...)
 				client.PutOutgoing(fmt.Sprintf("you have exited <%s> chatroom", k))
-				return
+				break
 			}
 		}
+		delete(userChatList, client)
+		SendMsg(k, user.GetUserName(client), "has exited")
 	}
 }
 
-func SendMsg(client *tcpx.Client, paramString string) {
+func Send(client *tcpx.Client, paramString string) {
 	msg := paramString
 	if ctName, ok := userChatList[client]; ok {
-		for _, c := range ChatroomList[ctName].clients {
-			c.PutOutgoing(fmt.Sprintf("%s says: %s",
-				user.GetUserName(client),
-				msg),
-			)
-		}
+		SendMsg(ctName, user.GetUserName(client), msg)
+	}
+}
+
+func SendMsg(ctName string, username string, msg string) {
+	for _, c := range ChatroomList[ctName].clients {
+		c.PutOutgoing(fmt.Sprintf("%s says: %s",
+			username,
+			msg),
+		)
 	}
 }

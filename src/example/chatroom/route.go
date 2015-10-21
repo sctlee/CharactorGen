@@ -18,9 +18,13 @@ func Route(url string, client *tcpx.Client) {
 	switch action {
 	case "list":
 		List(client)
+	case "view":
+		View(client, strings.TrimSpace(url[i:]))
 	case "join":
 		Join(client, strings.TrimSpace(url[i:]))
+	case "exit":
+		Exit(client)
 	case "send":
-		SendMsg(client, strings.TrimSpace(url[i:]))
+		Send(client, strings.TrimSpace(url[i:]))
 	}
 }
