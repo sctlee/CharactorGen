@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"example/user"
+	"features/user"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"

@@ -1,7 +1,7 @@
 package user
 
 import (
-	"example/db"
+	"features/db"
 	"log"
 )
 
