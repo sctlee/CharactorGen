@@ -1,7 +1,7 @@
 package chatroom
 
 import (
-	"example/db"
+	"features/db"
 )
 
 type Chatrooms struct {

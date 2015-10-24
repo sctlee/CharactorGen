@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"example/user"
+	"features/user"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"
