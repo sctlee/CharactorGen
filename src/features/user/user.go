@@ -18,25 +18,19 @@ func GetUserName(client *tcpx.Client) string {
 	}
 }
 
-func SetUserName(client *tcpx.Client, paramString string) {
-	name := paramString
+func SetUserName(client *tcpx.Client, params map[string]string) {
+	name := params["name"]
 	userList[client] = &User{
 		Name: name,
 	}
 	client.PutOutgoing(fmt.Sprintf("Hello, %s", name))
 }
 
-func Login(client *tcpx.Client, paramString string) {
-	userInfo := strings.Fields(paramString)
-	if len(userInfo) != 2 {
-		client.PutOutgoing("Params number error: Please input correct number of params")
-		return
-	}
-
+func Login(client *tcpx.Client, params map[string]string) {
 	/*
 		use postgresql
 	*/
-	user, err := Exists(userInfo[0], userInfo[1])
+	user, err := Exists(params["username"], params["password"])
 	if err != nil {
 		client.PutOutgoing("Username or password error!")
 	} else {
@@ -54,16 +48,10 @@ func Logout(client *tcpx.Client) {
 	}
 }
 
-func Signup(client *tcpx.Client, paramString string) {
-	userInfo := strings.Fields(paramString)
-	if len(userInfo) != 3 {
-		client.PutOutgoing("Params number error: " +
-			"Please input three params(username, password, confirm)")
-		return
-	}
-	username := userInfo[0]
-	password := userInfo[1]
-	confirm := userInfo[2]
+func Signup(client *tcpx.Client, params map[string]string) {
+	username := params["username"]
+	password := params["password"]
+	confirm := params["confirm"]
 
 	if strings.EqualFold(password, confirm) {
 		user := &User{

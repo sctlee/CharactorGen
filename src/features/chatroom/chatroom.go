@@ -50,14 +50,9 @@ func List(client *tcpx.Client) {
 		strings.Join(CHATROMMS, "\t")))
 }
 
-func Join(client *tcpx.Client, paramString string) {
+func Join(client *tcpx.Client, params map[string]string) {
 	initChatrooms()
-	params := strings.Fields(paramString)
-	if len(params) != 1 {
-		client.PutOutgoing("You can only input one param")
-		return
-	}
-	ctName := params[0]
+	ctName := params["ctName"]
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
 		Exit(client)
 		userChatList[client] = ctName
@@ -79,8 +74,8 @@ func Exit(client *tcpx.Client) {
 	}
 }
 
-func SendMsg(client *tcpx.Client, paramString string) {
-	msg := paramString
+func SendMsg(client *tcpx.Client, params map[string]string) {
+	msg := params["msg"]
 	if ctName, ok := userChatList[client]; ok {
 		for _, c := range ChatroomList[ctName].clients {
 			c.PutOutgoing(fmt.Sprintf("%s says: %s",

@@ -1,8 +1,6 @@
 package user
 
 import (
-	"strings"
-
 	"github.com/sctlee/tcpx"
 )
 
@@ -10,23 +8,15 @@ func init() {
 	userList = make(map[*tcpx.Client]*User)
 }
 
-func Route(url string, client *tcpx.Client) {
-	var action string
-	url = strings.TrimSpace(url)
-	i := strings.Index(url, " ")
-	if i == -1 {
-		action = url[:]
-	} else {
-		action = url[:i]
-	}
-	switch action {
+func Route(params map[string]string, client *tcpx.Client) {
+	switch params["command"] {
 	case "setName":
-		SetUserName(client, strings.TrimSpace(url[i:]))
+		SetUserName(client, params)
 	case "login":
-		Login(client, strings.TrimSpace(url[i:]))
+		Login(client, params)
 	case "logout":
 		Logout(client)
 	case "signup":
-		Signup(client, strings.TrimSpace(url[i:]))
+		Signup(client, params)
 	}
 }
