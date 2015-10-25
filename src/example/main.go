@@ -26,10 +26,10 @@ func main() {
 	}
 	if len(args) == 2 {
 		cf = config.LoadConfig("config.yml")
-		fmt.Println(cf)
 	} else if len(args) == 3 {
 		cf = config.LoadConfig(args[2])
 	}
+	fmt.Println(cf)
 
 	switch args[1] {
 	case "client":

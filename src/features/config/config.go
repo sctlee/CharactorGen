@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/jackc/pgx"
 	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	Host       string
-	Port       string
-	DBUser     string
-	DBName     string
-	DBPassword string
+	Host string
+	Port string
+	Db   pgx.ConnConfig
 }
 
 func LoadConfig(filePath string) (config Config) {
