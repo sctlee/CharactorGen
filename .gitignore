@@ -5,3 +5,4 @@ gen.log
 goenv.sh
 github.com
 conn_config.go
+config.yml

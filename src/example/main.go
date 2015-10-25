@@ -6,9 +6,10 @@ import (
 	"net"
 	"os"
 
-	"example/chatroom"
-	"example/db"
-	"example/user"
+	"features/chatroom"
+	"features/config"
+	"features/db"
+	"features/user"
 
 	"github.com/sctlee/tcpx"
 )
@@ -16,25 +17,32 @@ import (
 func main() {
 	fmt.Println("Hello, Secret!")
 
+	var cf config.Config
 	args := os.Args
 
 	if args == nil || len(args) < 2 {
 		fmt.Println("error")
 		return
 	}
+	if len(args) == 2 {
+		cf = config.LoadConfig("config.yml")
+	} else if len(args) == 3 {
+		cf = config.LoadConfig(args[2])
+	}
+	fmt.Println(cf)
 
 	switch args[1] {
 	case "client":
-		startClient()
+		startClient(":" + cf.Port)
 	case "server":
 		db.StartPool()
-		startServer()
+		startServer(cf.Port)
 	default:
 		fmt.Println("error")
 	}
 }
 
-func startServer() {
+func startServer(port string) {
 	fmt.Println("server")
 	server := tcpx.CreateServer()
 	// Register Router
@@ -44,9 +52,10 @@ func startServer() {
 	server.Start("9000")
 }
 
-func startClient() {
+func startClient(ip string) {
 	fmt.Println("client")
-	c, err := net.Dial("tcp", ":9000")
+	fmt.Println(ip)
+	c, err := net.Dial("tcp", ip)
 	if err != nil {
 		fmt.Println("hahah")
 		return
