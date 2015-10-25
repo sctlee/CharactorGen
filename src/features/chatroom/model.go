@@ -1,7 +1,7 @@
 package chatroom
 
 import (
-	"features/db"
+	"github.com/sctlee/tcpx/db"
 )
 
 type Chatrooms struct {

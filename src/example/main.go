@@ -7,17 +7,16 @@ import (
 	"os"
 
 	"features/chatroom"
-	"features/config"
-	"features/db"
 	"features/user"
 
 	"github.com/sctlee/tcpx"
+	"github.com/sctlee/tcpx/db"
 )
 
 func main() {
 	fmt.Println("Hello, Secret!")
 
-	var cf config.Config
+	var cf tcpx.Config
 	args := os.Args
 
 	if args == nil || len(args) < 2 {
@@ -25,9 +24,9 @@ func main() {
 		return
 	}
 	if len(args) == 2 {
-		cf = config.LoadConfig("config.yml")
+		cf = tcpx.LoadConfig("config.yml")
 	} else if len(args) == 3 {
-		cf = config.LoadConfig(args[2])
+		cf = tcpx.LoadConfig(args[2])
 	}
 	fmt.Println(cf)
 
