@@ -35,7 +35,7 @@ func main() {
 	case "client":
 		startClient(":" + cf.Port)
 	case "server":
-		db.StartPool()
+		db.StartPool(cf.Db)
 		startServer(cf.Port)
 	default:
 		fmt.Println("error")
