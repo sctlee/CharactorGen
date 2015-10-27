@@ -19,7 +19,11 @@ func GetUserName(client *tcpx.Client) string {
 }
 
 func SetUserName(client *tcpx.Client, params map[string]string) {
-	name := params["name"]
+	name, ok := params["name"]
+	if !ok {
+		client.PutOutgoing("Please input name")
+		return
+	}
 	userList[client] = &User{
 		Name: name,
 	}
@@ -30,7 +34,13 @@ func Login(client *tcpx.Client, params map[string]string) {
 	/*
 		use postgresql
 	*/
-	user, err := Exists(params["username"], params["password"])
+	username, ok1 := params["username"]
+	password, ok2 := params["password"]
+	if !ok1 || !ok2 {
+		client.PutOutgoing("params error")
+		return
+	}
+	user, err := Exists(username, password)
 	if err != nil {
 		client.PutOutgoing("Username or password error!")
 	} else {
@@ -49,9 +59,14 @@ func Logout(client *tcpx.Client) {
 }
 
 func Signup(client *tcpx.Client, params map[string]string) {
-	username := params["username"]
-	password := params["password"]
-	confirm := params["confirm"]
+	username, ok1 := params["username"]
+	password, ok2 := params["password"]
+	confirm, ok3 := params["confirm"]
+
+	if !ok1 || !ok2 || !ok3 {
+		client.PutOutgoing("params error")
+		return
+	}
 
 	if strings.EqualFold(password, confirm) {
 		user := &User{
@@ -63,5 +78,7 @@ func Signup(client *tcpx.Client, params map[string]string) {
 		} else {
 			client.PutOutgoing("Signup success! Now you can login with your account!")
 		}
+	} else {
+		client.PutOutgoing("confirm is not equal to password")
 	}
 }

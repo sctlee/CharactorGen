@@ -67,7 +67,11 @@ func List(client *tcpx.Client) {
 }
 
 func View(client *tcpx.Client, params map[string]string) {
-	ctName := params["ctName"]
+	ctName, ok := params["ctName"]
+	if !ok {
+		client.PutOutgoing("Please input ctName")
+		return
+	}
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
 		client.PutOutgoing(fmt.Sprintf("%d", len(ChatroomList[ctName].clients)))
 	} else {
@@ -77,14 +81,18 @@ func View(client *tcpx.Client, params map[string]string) {
 
 func Join(client *tcpx.Client, params map[string]string) {
 	initChatrooms()
-	ctName := params["ctName"]
+	ctName, ok := params["ctName"]
+	if !ok {
+		client.PutOutgoing("Please input ctName")
+		return
+	}
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
 		Exit(client)
 		userChatList[client] = ctName
 		ChatroomList[ctName].clients = append(ChatroomList[ctName].clients, client)
 		client.PutOutgoing(fmt.Sprintf("you have joined <%s> chatroom", ctName))
 	} else {
-		client.PutOutgoing("the chatroom is not existed")
+		client.PutOutgoing(fmt.Sprintf("<%s> chatroom is not existed", ctName))
 	}
 }
 
@@ -104,7 +112,11 @@ func Exit(client *tcpx.Client) {
 }
 
 func Send(client *tcpx.Client, params map[string]string) {
-	msg := params["msg"]
+	msg, ok := params["msg"]
+	if !ok {
+		client.PutOutgoing("Please input msg")
+		return
+	}
 	if ctName, ok := userChatList[client]; ok {
 		SendMsg(ctName, user.GetUserName(client), msg)
 	}
