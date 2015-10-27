@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/sctlee/tcpx"
+	"github.com/sctlee/utils"
 )
 
 var userList map[*tcpx.Client]*User
@@ -19,11 +20,12 @@ func GetUserName(client *tcpx.Client) string {
 }
 
 func SetUserName(client *tcpx.Client, params map[string]string) {
-	name, ok := params["name"]
-	if !ok {
+	if !utils.IsExistInMap(params, "name") {
 		client.PutOutgoing("Please input name")
 		return
 	}
+	name := params["name"]
+
 	userList[client] = &User{
 		Name: name,
 	}
@@ -34,12 +36,13 @@ func Login(client *tcpx.Client, params map[string]string) {
 	/*
 		use postgresql
 	*/
-	username, ok1 := params["username"]
-	password, ok2 := params["password"]
-	if !ok1 || !ok2 {
+	if !utils.IsExistInMap(params, "username", "password") {
 		client.PutOutgoing("params error")
 		return
 	}
+	username := params["username"]
+	password := params["password"]
+
 	user, err := Exists(username, password)
 	if err != nil {
 		client.PutOutgoing("Username or password error!")
@@ -59,14 +62,13 @@ func Logout(client *tcpx.Client) {
 }
 
 func Signup(client *tcpx.Client, params map[string]string) {
-	username, ok1 := params["username"]
-	password, ok2 := params["password"]
-	confirm, ok3 := params["confirm"]
-
-	if !ok1 || !ok2 || !ok3 {
+	if !utils.IsExistInMap(params, "username", "password", "confitm") {
 		client.PutOutgoing("params error")
 		return
 	}
+	username := params["username"]
+	password := params["password"]
+	confirm := params["confirm"]
 
 	if strings.EqualFold(password, confirm) {
 		user := &User{
