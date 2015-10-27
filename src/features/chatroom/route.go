@@ -1,26 +1,20 @@
 package chatroom
 
 import (
-	"strings"
-
 	"github.com/sctlee/tcpx"
 )
 
-func Route(url string, client *tcpx.Client) {
-	var action string
-	url = strings.TrimSpace(url)
-	i := strings.Index(url, " ")
-	if i == -1 {
-		action = url[:]
-	} else {
-		action = url[:i]
-	}
-	switch action {
+func Route(params map[string]string, client *tcpx.Client) {
+	switch params["command"] {
 	case "list":
 		List(client)
+	case "view":
+		View(client, params)
 	case "join":
-		Join(client, strings.TrimSpace(url[i:]))
+		Join(client, params)
+	case "exit":
+		Exit(client)
 	case "send":
-		SendMsg(client, strings.TrimSpace(url[i:]))
+		Send(client, params)
 	}
 }
