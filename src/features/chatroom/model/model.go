@@ -1,4 +1,4 @@
-package chatroom
+package model
 
 import (
 	"github.com/sctlee/tcpx/db"

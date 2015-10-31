@@ -4,11 +4,17 @@ import (
 	"fmt"
 	"strings"
 
+	. "features/user/model"
+
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"
 )
 
 var userList map[*tcpx.Client]*User
+
+func init() {
+	userList = make(map[*tcpx.Client]*User)
+}
 
 func GetUserName(client *tcpx.Client) string {
 	s := userList[client]

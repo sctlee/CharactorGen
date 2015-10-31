@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	. "features/chatroom/model"
 	"features/user"
 
 	"github.com/sctlee/tcpx"
