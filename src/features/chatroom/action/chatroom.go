@@ -7,7 +7,7 @@ import (
 	"time"
 
 	. "features/chatroom/model"
-	ga "features/growtree/actions"
+	ga "features/growtree/action"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"
