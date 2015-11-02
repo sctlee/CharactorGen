@@ -1,6 +1,8 @@
 package chatroom
 
 import (
+	. "features/chatroom/actions"
+
 	"github.com/sctlee/tcpx"
 )
 

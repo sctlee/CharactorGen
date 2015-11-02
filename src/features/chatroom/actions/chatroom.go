@@ -1,4 +1,4 @@
-package chatroom
+package actions
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"time"
 
 	. "features/chatroom/model"
-	"features/user"
+	ga "features/growtree/actions"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"
@@ -111,17 +111,17 @@ func Exit(client *tcpx.Client) {
 			}
 		}
 		delete(userChatList, client)
-		SendMsg(k, user.GetUserName(client), "has exited")
+		SendMsg(k, ga.GetUserName(client), "has exited")
 	}
 }
 
 func Send(client *tcpx.Client, params map[string]string) {
-	if !utils.IsExistInMap(params, "ctName") {
+	if !utils.IsExistInMap(params, "msg") {
 		client.PutOutgoing("Please input msg")
 		return
 	}
 	if ctName, ok := userChatList[client]; ok {
-		SendMsg(ctName, user.GetUserName(client), params["msg"])
+		SendMsg(ctName, ga.GetUserName(client), params["msg"])
 	}
 }
 
