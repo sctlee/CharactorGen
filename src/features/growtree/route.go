@@ -1,7 +1,7 @@
 package growtree
 
 import (
-	. "features/growtree/actions"
+	. "features/growtree/action"
 
 	"github.com/sctlee/tcpx"
 )
