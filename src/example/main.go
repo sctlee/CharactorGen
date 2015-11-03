@@ -6,47 +6,55 @@ import (
 	"net"
 	"os"
 
-	"example/chatroom"
-	"example/db"
-	"example/user"
+	"features/chatroom"
+	"features/growtree"
 
 	"github.com/sctlee/tcpx"
+	"github.com/sctlee/tcpx/db"
 )
 
 func main() {
 	fmt.Println("Hello, Secret!")
 
+	var cf tcpx.Config
 	args := os.Args
 
 	if args == nil || len(args) < 2 {
 		fmt.Println("error")
 		return
 	}
+	if len(args) == 2 {
+		cf = tcpx.LoadConfig("config.yml")
+	} else if len(args) == 3 {
+		cf = tcpx.LoadConfig(args[2])
+	}
+	fmt.Println(cf)
 
 	switch args[1] {
 	case "client":
-		startClient()
+		startClient(":" + cf.Port)
 	case "server":
-		db.StartPool()
-		startServer()
+		db.StartPool(cf.Db)
+		startServer(cf.Port)
 	default:
 		fmt.Println("error")
 	}
 }
 
-func startServer() {
+func startServer(port string) {
 	fmt.Println("server")
 	server := tcpx.CreateServer()
 	// Register Router
 	server.Router.RouteList["chatroom"] = chatroom.Route
-	server.Router.RouteList["user"] = user.Route
+	server.Router.RouteList["growtree"] = growtree.Route
 	// End Register
 	server.Start("9000")
 }
 
-func startClient() {
+func startClient(ip string) {
 	fmt.Println("client")
-	c, err := net.Dial("tcp", ":9000")
+	fmt.Println(ip)
+	c, err := net.Dial("tcp", ip)
 	if err != nil {
 		fmt.Println("hahah")
 		return

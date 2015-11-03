@@ -1,4 +1,4 @@
-package chatroom
+package task
 
 import (
 	"strings"
@@ -16,11 +16,8 @@ func Route(url string, client *tcpx.Client) {
 		action = url[:i]
 	}
 	switch action {
-	case "list":
-		List(client)
-	case "join":
-		Join(client, strings.TrimSpace(url[i:]))
-	case "send":
-		SendMsg(client, strings.TrimSpace(url[i:]))
+	case "publish":
+	case "accept":
+	case "build":
 	}
 }

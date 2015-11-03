@@ -1,8 +1,9 @@
-package user
+package model
 
 import (
-	"example/db"
 	"log"
+
+	"github.com/sctlee/tcpx/db"
 )
 
 type User struct {

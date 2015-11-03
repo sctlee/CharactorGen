@@ -3,6 +3,9 @@ This is a character generator.Character is the one you image what you should be.
 
 The first function is chatroom based on a simple tcp framework.
 
+# Recent activity
+Use new protocol, eg. `chatroom.send|msg:haha`
+
 # Install
 #### Go installation
 You should install [Go](http://golang.org) first.
@@ -35,24 +38,24 @@ If you have installed the example successfully, you will see the binary file `ex
 ./bin/example server
 # open a new bash
 ./bin/example client
-> chatroom join 1
-> chatroom send hello
+> chatroom.join|ctName:1
+> chatroom.send|msg:hello
 ```
 
 #### Chatroom
 Chatroom feature has three command: list, join, send
 ```
-> chatroom list
-> chatroom join 1
-> chatroom send hello
+> chatroom.list|
+> chatroom.join|ctName:1
+> chatroom.send|msg:hello
 ```
 
 #### User
 User feature has three command: login, logout, setName
 ```
-> user login lhc lhc
-> user setName hc
-> user logout
+> user.login|username:***;password:***
+> user.setName|name:hc
+> user.logout|
 ```
 
 Because db has not been supported, user's name is fake. It means you can't sign up and the name you set can't be saved.
