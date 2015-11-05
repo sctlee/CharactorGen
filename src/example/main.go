@@ -69,7 +69,11 @@ func startClient(ip string) {
 	out := bufio.NewWriter(os.Stdout)
 
 	go func() {
-		for msg := range client.GetIncoming() {
+		for {
+			msg, ok := client.GetIncoming()
+			if !ok {
+				break
+			}
 			out.WriteString(msg + "\n")
 			out.Flush()
 		}
