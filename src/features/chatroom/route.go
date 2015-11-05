@@ -6,17 +6,24 @@ import (
 	"github.com/sctlee/tcpx"
 )
 
+//TODO: redefine struct function, then move the usage from here to example
+var chatroomAction *ChatroomAction
+
+func init() {
+	chatroomAction = NewChatroomAction()
+}
+
 func Route(params map[string]string, client *tcpx.Client) {
 	switch params["command"] {
 	case "list":
-		List(client)
+		chatroomAction.List(client)
 	case "view":
-		View(client, params)
+		chatroomAction.View(client, params)
 	case "join":
-		Join(client, params)
+		chatroomAction.Join(client, params)
 	case "exit":
-		Exit(client)
+		chatroomAction.Exit(client)
 	case "send":
-		Send(client, params)
+		chatroomAction.Send(client, params)
 	}
 }

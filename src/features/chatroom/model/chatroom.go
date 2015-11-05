@@ -4,20 +4,20 @@ import (
 	"github.com/sctlee/tcpx/db"
 )
 
-type Chatrooms struct {
+type ChatroomModel struct {
 	id   int32
 	Name string
 	// MaxClients int16
 	Class string
 }
 
-func ListChatrooms() (chatroomList []*Chatrooms, err error) {
-	chatroomList = make([]*Chatrooms, 0)
+func ListChatroomModel() (chatroomList []*ChatroomModel, err error) {
+	chatroomList = make([]*ChatroomModel, 0)
 
-	rows, _ := db.Pool.Query("select id, name, class from chatrooms")
+	rows, _ := db.Pool.Query("select id, name, class from Chatrooms")
 
 	for rows.Next() {
-		ct := &Chatrooms{}
+		ct := &ChatroomModel{}
 		err := rows.Scan(&ct.id, &ct.Name, &ct.Class)
 		if err == nil {
 			chatroomList = append(chatroomList, ct)
