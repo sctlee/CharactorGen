@@ -5,6 +5,11 @@ The first function is chatroom based on a simple tcp framework.
 
 # Recent activity
 Use new protocol, eg. `chatroom.send|msg:haha`
+2015-11-6 21:41
+Use the new feature of [tcpx](http://github.com/sctlee/tcpx): Delegation
+Use Message to send msg to clients, including boardcast.
+
+More details seen in [tcpx](http://github.com/sctlee/tcpx)
 
 # Install
 #### Go installation
