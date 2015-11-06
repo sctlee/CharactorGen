@@ -1,22 +1,35 @@
 package chatroom
 
 import (
-	. "features/chatroom/actions"
+	"fmt"
+
+	. "features/chatroom/action"
 
 	"github.com/sctlee/tcpx"
 )
 
-func Route(params map[string]string, client *tcpx.Client) {
+//TODO: redefine struct function, then move the usage from here to example
+var chatroomAction *ChatroomAction
+
+func init() {
+	chatroomAction = NewChatroomAction()
+}
+
+func Route(params map[string]string, client *tcpx.Client) tcpx.IMessage {
+	var responseMsg tcpx.IMessage
 	switch params["command"] {
 	case "list":
-		List(client)
+		responseMsg = chatroomAction.List(client)
 	case "view":
-		View(client, params)
+		responseMsg = chatroomAction.View(client, params)
 	case "join":
-		Join(client, params)
+		responseMsg = chatroomAction.Join(client, params)
 	case "exit":
-		Exit(client)
+		responseMsg = chatroomAction.Exit(client)
 	case "send":
-		Send(client, params)
+		responseMsg = chatroomAction.Send(client, params)
+	default:
+		return tcpx.NewMessage(client, fmt.Sprintf("no '%s' command", params["command"]))
 	}
+	return responseMsg
 }

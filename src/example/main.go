@@ -45,8 +45,8 @@ func startServer(port string) {
 	fmt.Println("server")
 	server := tcpx.CreateServer()
 	// Register Router
-	server.Router.RouteList["chatroom"] = chatroom.Route
-	server.Router.RouteList["growtree"] = growtree.Route
+	server.Routers["chatroom"] = chatroom.Route
+	server.Routers["growtree"] = growtree.Route
 	// End Register
 	server.Start("9000")
 }
@@ -69,7 +69,11 @@ func startClient(ip string) {
 	out := bufio.NewWriter(os.Stdout)
 
 	go func() {
-		for msg := range client.GetIncoming() {
+		for {
+			msg, ok := client.GetIncoming()
+			if !ok {
+				break
+			}
 			out.WriteString(msg + "\n")
 			out.Flush()
 		}
