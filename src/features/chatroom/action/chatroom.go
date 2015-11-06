@@ -7,7 +7,7 @@ import (
 	// "time"
 
 	. "features/chatroom/model"
-	ga "features/growtree/action"
+	"features/growtree"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"
@@ -99,7 +99,7 @@ func (self *ChatroomAction) Exit(client *tcpx.Client) tcpx.IMessage {
 			}
 		}
 		delete(self.UserChatList, client)
-		return self.SendMsg(chatroom, ga.GetUserName(client), "has exited")
+		return self.SendMsg(chatroom, growtree.GetUserName(client), "has exited")
 	}
 	return tcpx.NewMessage(client, "You have not joined a chatroom")
 }
@@ -109,7 +109,7 @@ func (self *ChatroomAction) Send(client *tcpx.Client, params map[string]string) 
 		return tcpx.NewMessage(client, "Please input msg")
 	}
 	if chatroom, ok := self.UserChatList[client]; ok {
-		return self.SendMsg(chatroom, ga.GetUserName(client), params["msg"])
+		return self.SendMsg(chatroom, growtree.GetUserName(client), params["msg"])
 	}
 	return tcpx.NewMessage(client, "You have not joined a chatroom")
 }

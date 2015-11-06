@@ -10,14 +10,18 @@ import (
 	"github.com/sctlee/utils"
 )
 
-var userList map[*tcpx.Client]*User
-
-func init() {
-	userList = make(map[*tcpx.Client]*User)
+type UserAction struct {
+	userList map[*tcpx.Client]*UserModel
 }
 
-func GetUserName(client *tcpx.Client) string {
-	s := userList[client]
+func NewUserAction() *UserAction {
+	return &UserAction{
+		userList: make(map[*tcpx.Client]*UserModel),
+	}
+}
+
+func (self *UserAction) GetUserName(client *tcpx.Client) string {
+	s := self.userList[client]
 	if s != nil {
 		return s.Name
 	} else {
@@ -25,68 +29,65 @@ func GetUserName(client *tcpx.Client) string {
 	}
 }
 
-func SetUserName(client *tcpx.Client, params map[string]string) {
+func (self *UserAction) SetUserName(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	if !utils.IsExistInMap(params, "name") {
-		client.PutOutgoing("Please input name")
-		return
+		return tcpx.NewMessage(client, "Please input name")
 	}
 	name := params["name"]
 
-	userList[client] = &User{
+	self.userList[client] = &UserModel{
 		Name: name,
 	}
-	client.PutOutgoing(fmt.Sprintf("Hello, %s", name))
+	return tcpx.NewMessage(client, fmt.Sprintf("Hello, %s", name))
 }
 
-func Login(client *tcpx.Client, params map[string]string) {
+func (self *UserAction) Login(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	/*
 		use postgresql
 	*/
 	if !utils.IsExistInMap(params, "username", "password") {
-		client.PutOutgoing("params error")
-		return
+		return tcpx.NewMessage(client, "params error")
 	}
 	username := params["username"]
 	password := params["password"]
 
 	user, err := Exists(username, password)
 	if err != nil {
-		client.PutOutgoing("Username or password error!")
+		return tcpx.NewMessage(client, "Username or password error!")
 	} else {
-		userList[client] = user
-		client.PutOutgoing("Login Success!")
+		self.userList[client] = user
+		return tcpx.NewMessage(client, "Login Success!")
 	}
 }
 
-func Logout(client *tcpx.Client) {
-	if _, ok := userList[client]; ok {
-		delete(userList, client)
-		client.PutOutgoing("Logout success!")
+func (self *UserAction) Logout(client *tcpx.Client) tcpx.IMessage {
+	if _, ok := self.userList[client]; ok {
+		delete(self.userList, client)
+		return tcpx.NewMessage(client, "Logout success!")
 	} else {
-		client.PutOutgoing("Please login first!")
+		return tcpx.NewMessage(client, "Please login first!")
 	}
 }
 
-func Signup(client *tcpx.Client, params map[string]string) {
+func (self *UserAction) Signup(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	if !utils.IsExistInMap(params, "username", "password", "confitm") {
-		client.PutOutgoing("params error")
-		return
+		return tcpx.NewMessage(client, "params error")
 	}
 	username := params["username"]
 	password := params["password"]
 	confirm := params["confirm"]
 
 	if strings.EqualFold(password, confirm) {
-		user := &User{
+		user := &UserModel{
 			Name:     username,
 			Password: password,
 		}
 		if err := user.Save(); err != nil {
-			client.PutOutgoing("Signup error!")
+			return tcpx.NewMessage(client, "Signup error!")
 		} else {
-			client.PutOutgoing("Signup success! Now you can login with your account!")
+			return tcpx.NewMessage(client, "Signup success! Now you can login with your account!")
 		}
 	} else {
-		client.PutOutgoing("confirm is not equal to password")
+		return tcpx.NewMessage(client, "confirm is not equal to password")
 	}
 }
