@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"time"
+	// "time"
 
 	. "features/chatroom/model"
 	ga "features/growtree/action"
@@ -15,30 +15,32 @@ import (
 
 var CHATROMMS = []string{}
 
+type ChatroomAction struct {
+	ChatroomList map[string]*Chatroom
+	UserChatList map[*tcpx.Client]*Chatroom
+}
+
 type Chatroom struct {
-	ct      *Chatrooms
+	ct      *ChatroomModel
 	clients []*tcpx.Client
 }
 
-var ChatroomList map[string]*Chatroom
-
-var userChatList map[*tcpx.Client]string
-
-func init() {
-	ChatroomList = make(map[string]*Chatroom, 10)
-	userChatList = make(map[*tcpx.Client]string)
-	go cleanChatrooms()
+func NewChatroomAction() *ChatroomAction {
+	return &ChatroomAction{
+		ChatroomList: make(map[string]*Chatroom, 10),
+		UserChatList: make(map[*tcpx.Client]*Chatroom),
+	}
 }
 
-func initChatrooms() {
+func (self *ChatroomAction) initChatrooms() {
 	if len(CHATROMMS) == 0 {
-		log.Println("Init Chatrooms")
-		ctList, err := ListChatrooms()
+		log.Println("Init ChatroomModel")
+		ctList, err := ListChatroomModel()
 		if err != nil {
-			log.Println("Service error")
+			log.Println(err)
 		} else {
 			for _, ct := range ctList {
-				ChatroomList[ct.Name] = &Chatroom{
+				self.ChatroomList[ct.Name] = &Chatroom{
 					ct: ct,
 				}
 				CHATROMMS = append(CHATROMMS, ct.Name)
@@ -47,89 +49,93 @@ func initChatrooms() {
 	}
 }
 
-//check whether a closed client joined in a chatroom. if has, clean it.
-func cleanChatrooms() {
-	for {
-		select {
-		case <-time.After(time.Second * 2):
-			for k, _ := range userChatList {
-				if k.State == tcpx.CLIENT_STATE_CLOSE {
-					Exit(k)
-				}
-			}
-		}
-	}
-}
-
-func List(client *tcpx.Client) {
-	initChatrooms()
-	client.PutOutgoing(fmt.Sprintf("You can choose one chatroom to join:\n%s",
+func (self *ChatroomAction) List(client *tcpx.Client) tcpx.IMessage {
+	self.initChatrooms()
+	return tcpx.NewMessage(client, fmt.Sprintf("You can choose one chatroom to join:\n%s",
 		strings.Join(CHATROMMS, "\t")))
 }
 
-func View(client *tcpx.Client, params map[string]string) {
+func (self *ChatroomAction) View(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	if !utils.IsExistInMap(params, "ctName") {
-		client.PutOutgoing("Please input ctName")
-		return
+		return tcpx.NewMessage(client, "Please input ctName")
 	}
 	ctName := params["ctName"]
 
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
-		client.PutOutgoing(fmt.Sprintf("%d", len(ChatroomList[ctName].clients)))
+		return tcpx.NewMessage(client, fmt.Sprintf("%d", len(self.ChatroomList[ctName].clients)))
 	} else {
-		client.PutOutgoing("the chatroom is not existed")
+		return tcpx.NewMessage(client, "the chatroom is not existed")
 	}
 }
-
-func Join(client *tcpx.Client, params map[string]string) {
-	initChatrooms()
+func (self *ChatroomAction) Join(client *tcpx.Client, params map[string]string) tcpx.IMessage {
+	self.initChatrooms()
 
 	if !utils.IsExistInMap(params, "ctName") {
-		client.PutOutgoing("Please input ctName")
-		return
+		return tcpx.NewMessage(client, "Please input ctName")
 	}
 	ctName := params["ctName"]
 
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
-		Exit(client)
-		userChatList[client] = ctName
-		ChatroomList[ctName].clients = append(ChatroomList[ctName].clients, client)
-		client.PutOutgoing(fmt.Sprintf("you have joined <%s> chatroom", ctName))
+		self.Exit(client)
+
+		client.SetOnCloseListener(self)
+
+		self.UserChatList[client] = self.ChatroomList[ctName]
+		self.ChatroomList[ctName].clients = append(self.ChatroomList[ctName].clients, client)
+		return tcpx.NewMessage(client, fmt.Sprintf("you have joined <%s> chatroom", ctName))
 	} else {
-		client.PutOutgoing(fmt.Sprintf("<%s> chatroom is not existed", ctName))
+		return tcpx.NewMessage(client, fmt.Sprintf("<%s> chatroom is not existed", ctName))
 	}
 }
 
-func Exit(client *tcpx.Client) {
-	if k, ok := userChatList[client]; ok {
-		for i, c := range ChatroomList[k].clients {
+func (self *ChatroomAction) Exit(client *tcpx.Client) tcpx.IMessage {
+	if chatroom, ok := self.UserChatList[client]; ok {
+		for i, c := range chatroom.clients {
 			if c == client {
-				ChatroomList[k].clients = append(ChatroomList[k].clients[:i],
-					ChatroomList[k].clients[i+1:]...)
-				client.PutOutgoing(fmt.Sprintf("you have exited <%s> chatroom", k))
+				chatroom.clients = append(chatroom.clients[:i],
+					chatroom.clients[i+1:]...)
+				client.PutOutgoing(fmt.Sprintf("you have exited <%s> chatroom", chatroom.ct.Name))
 				break
 			}
 		}
-		delete(userChatList, client)
-		SendMsg(k, ga.GetUserName(client), "has exited")
+		delete(self.UserChatList, client)
+		return self.SendMsg(chatroom, ga.GetUserName(client), "has exited")
 	}
+	return tcpx.NewMessage(client, "You have not joined a chatroom")
 }
 
-func Send(client *tcpx.Client, params map[string]string) {
+func (self *ChatroomAction) Send(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	if !utils.IsExistInMap(params, "msg") {
-		client.PutOutgoing("Please input msg")
-		return
+		return tcpx.NewMessage(client, "Please input msg")
 	}
-	if ctName, ok := userChatList[client]; ok {
-		SendMsg(ctName, ga.GetUserName(client), params["msg"])
+	if chatroom, ok := self.UserChatList[client]; ok {
+		return self.SendMsg(chatroom, ga.GetUserName(client), params["msg"])
 	}
+	return tcpx.NewMessage(client, "You have not joined a chatroom")
 }
 
-func SendMsg(ctName string, username string, msg string) {
-	for _, c := range ChatroomList[ctName].clients {
-		c.PutOutgoing(fmt.Sprintf("%s says: %s",
+func (self *ChatroomAction) SendMsg(chatroom *Chatroom, username string, msg string) tcpx.IMessage {
+	return tcpx.NewBoardMessage(nil,
+		fmt.Sprintf("%s says: %s",
 			username,
 			msg),
-		)
-	}
+		chatroom.clients)
 }
+
+func (self *ChatroomAction) OnClose(client *tcpx.Client) {
+	self.Exit(client)
+}
+
+//check whether a closed client joined in a chatroom. if has, clean it.
+// func cleanChatroomModel() {
+// 	for {
+// 		select {
+// 		case <-time.After(time.Second * 2):
+// 			for k, _ := range userChatList {
+// 				if k.State == tcpx.CLIENT_STATE_CLOSE {
+// 					Exit(k)
+// 				}
+// 			}
+// 		}
+// 	}
+// }
