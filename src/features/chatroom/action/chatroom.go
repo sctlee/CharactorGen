@@ -49,35 +49,29 @@ func (self *ChatroomAction) initChatrooms() {
 	}
 }
 
-func (self *ChatroomAction) List(client *tcpx.Client) {
+func (self *ChatroomAction) List(client *tcpx.Client) tcpx.IMessage {
 	self.initChatrooms()
-	client.PutOutgoing(fmt.Sprintf("You can choose one chatroom to join:\n%s",
+	return tcpx.NewMessage(client, fmt.Sprintf("You can choose one chatroom to join:\n%s",
 		strings.Join(CHATROMMS, "\t")))
 }
 
-func (self *ChatroomAction) View(client *tcpx.Client, params map[string]string) {
+func (self *ChatroomAction) View(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	if !utils.IsExistInMap(params, "ctName") {
-		client.PutOutgoing("Please input ctName")
-		return
+		return tcpx.NewMessage(client, "Please input ctName")
 	}
 	ctName := params["ctName"]
 
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
-		client.PutOutgoing(fmt.Sprintf("%d", len(self.ChatroomList[ctName].clients)))
+		return tcpx.NewMessage(client, fmt.Sprintf("%d", len(self.ChatroomList[ctName].clients)))
 	} else {
-		client.PutOutgoing("the chatroom is not existed")
+		return tcpx.NewMessage(client, "the chatroom is not existed")
 	}
 }
-func (self *ChatroomAction) OnClose(client *tcpx.Client) {
-	self.Exit(client)
-}
-
-func (self *ChatroomAction) Join(client *tcpx.Client, params map[string]string) {
+func (self *ChatroomAction) Join(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	self.initChatrooms()
 
 	if !utils.IsExistInMap(params, "ctName") {
-		client.PutOutgoing("Please input ctName")
-		return
+		return tcpx.NewMessage(client, "Please input ctName")
 	}
 	ctName := params["ctName"]
 
@@ -88,13 +82,13 @@ func (self *ChatroomAction) Join(client *tcpx.Client, params map[string]string) 
 
 		self.UserChatList[client] = self.ChatroomList[ctName]
 		self.ChatroomList[ctName].clients = append(self.ChatroomList[ctName].clients, client)
-		client.PutOutgoing(fmt.Sprintf("you have joined <%s> chatroom", ctName))
+		return tcpx.NewMessage(client, fmt.Sprintf("you have joined <%s> chatroom", ctName))
 	} else {
-		client.PutOutgoing(fmt.Sprintf("<%s> chatroom is not existed", ctName))
+		return tcpx.NewMessage(client, fmt.Sprintf("<%s> chatroom is not existed", ctName))
 	}
 }
 
-func (self *ChatroomAction) Exit(client *tcpx.Client) {
+func (self *ChatroomAction) Exit(client *tcpx.Client) tcpx.IMessage {
 	if chatroom, ok := self.UserChatList[client]; ok {
 		for i, c := range chatroom.clients {
 			if c == client {
@@ -105,27 +99,31 @@ func (self *ChatroomAction) Exit(client *tcpx.Client) {
 			}
 		}
 		delete(self.UserChatList, client)
-		self.SendMsg(chatroom, ga.GetUserName(client), "has exited")
+		return self.SendMsg(chatroom, ga.GetUserName(client), "has exited")
 	}
+	return tcpx.NewMessage(client, "You have not joined a chatroom")
 }
 
-func (self *ChatroomAction) Send(client *tcpx.Client, params map[string]string) {
+func (self *ChatroomAction) Send(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	if !utils.IsExistInMap(params, "msg") {
-		client.PutOutgoing("Please input msg")
-		return
+		return tcpx.NewMessage(client, "Please input msg")
 	}
 	if chatroom, ok := self.UserChatList[client]; ok {
-		self.SendMsg(chatroom, ga.GetUserName(client), params["msg"])
+		return self.SendMsg(chatroom, ga.GetUserName(client), params["msg"])
 	}
+	return tcpx.NewMessage(client, "You have not joined a chatroom")
 }
 
-func (self *ChatroomAction) SendMsg(chatroom *Chatroom, username string, msg string) {
-	for _, c := range chatroom.clients {
-		c.PutOutgoing(fmt.Sprintf("%s says: %s",
+func (self *ChatroomAction) SendMsg(chatroom *Chatroom, username string, msg string) tcpx.IMessage {
+	return tcpx.NewBoardMessage(nil,
+		fmt.Sprintf("%s says: %s",
 			username,
 			msg),
-		)
-	}
+		chatroom.clients)
+}
+
+func (self *ChatroomAction) OnClose(client *tcpx.Client) {
+	self.Exit(client)
 }
 
 //check whether a closed client joined in a chatroom. if has, clean it.

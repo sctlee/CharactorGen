@@ -1,6 +1,8 @@
 package chatroom
 
 import (
+	"fmt"
+
 	. "features/chatroom/action"
 
 	"github.com/sctlee/tcpx"
@@ -13,17 +15,21 @@ func init() {
 	chatroomAction = NewChatroomAction()
 }
 
-func Route(params map[string]string, client *tcpx.Client) {
+func Route(params map[string]string, client *tcpx.Client) tcpx.IMessage {
+	var responseMsg tcpx.IMessage
 	switch params["command"] {
 	case "list":
-		chatroomAction.List(client)
+		responseMsg = chatroomAction.List(client)
 	case "view":
-		chatroomAction.View(client, params)
+		responseMsg = chatroomAction.View(client, params)
 	case "join":
-		chatroomAction.Join(client, params)
+		responseMsg = chatroomAction.Join(client, params)
 	case "exit":
-		chatroomAction.Exit(client)
+		responseMsg = chatroomAction.Exit(client)
 	case "send":
-		chatroomAction.Send(client, params)
+		responseMsg = chatroomAction.Send(client, params)
+	default:
+		return tcpx.NewMessage(client, fmt.Sprintf("no '%s' command", params["command"]))
 	}
+	return responseMsg
 }
