@@ -1,20 +1,36 @@
 package growtree
 
 import (
+	"fmt"
+
 	. "features/growtree/action"
 
 	"github.com/sctlee/tcpx"
 )
 
-func Route(params map[string]string, client *tcpx.Client) {
+var userAction *UserAction
+
+func init() {
+	userAction = NewUserAction()
+}
+
+func Route(params map[string]string, client *tcpx.Client) tcpx.IMessage {
+	var responseMsg tcpx.IMessage
 	switch params["command"] {
 	case "setName":
-		SetUserName(client, params)
+		responseMsg = userAction.SetUserName(client, params)
 	case "login":
-		Login(client, params)
+		responseMsg = userAction.Login(client, params)
 	case "logout":
-		Logout(client)
+		responseMsg = userAction.Logout(client)
 	case "signup":
-		Signup(client, params)
+		responseMsg = userAction.Signup(client, params)
+	default:
+		return tcpx.NewMessage(client, fmt.Sprintf("no '%s' command", params["command"]))
 	}
+	return responseMsg
+}
+
+func GetUserName(client *tcpx.Client) string {
+	return userAction.GetUserName(client)
 }

@@ -6,22 +6,22 @@ import (
 	"github.com/sctlee/tcpx/db"
 )
 
-type User struct {
+type UserModel struct {
 	id       int32
 	Name     string
 	Password string
 }
 
-func (self *User) Save() error {
+func (self *UserModel) Save() error {
 	_, err := db.Pool.Exec("insert into account(name, password) values($1, $2)",
 		self.Name, self.Password)
 	return err
 }
 
-func Exists(name string, password string) (user *User, err error) {
+func Exists(name string, password string) (user *UserModel, err error) {
 	// user = nil
 	// err = nil
-	user = &User{}
+	user = &UserModel{}
 
 	row := db.Pool.QueryRow("select id from account where name = $1 and password = $2", name, password)
 	err = row.Scan(&user.id)

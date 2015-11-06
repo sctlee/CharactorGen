@@ -7,7 +7,7 @@ import (
 	"time"
 
 	. "features/chatroom/model"
-	ga "features/growtree/action"
+	"features/growtree"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"
@@ -111,7 +111,7 @@ func Exit(client *tcpx.Client) {
 			}
 		}
 		delete(userChatList, client)
-		SendMsg(k, ga.GetUserName(client), "has exited")
+		SendMsg(k, growtree.GetUserName(client), "has exited")
 	}
 }
 
@@ -121,7 +121,7 @@ func Send(client *tcpx.Client, params map[string]string) {
 		return
 	}
 	if ctName, ok := userChatList[client]; ok {
-		SendMsg(ctName, ga.GetUserName(client), params["msg"])
+		SendMsg(ctName, growtree.GetUserName(client), params["msg"])
 	}
 }
 
