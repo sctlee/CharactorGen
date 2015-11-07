@@ -7,7 +7,6 @@ import (
 	// "time"
 
 	. "features/chatroom/model"
-	"features/growtree"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"
@@ -99,7 +98,7 @@ func (self *ChatroomAction) Exit(client *tcpx.Client) tcpx.IMessage {
 			}
 		}
 		delete(self.UserChatList, client)
-		return self.SendMsg(chatroom, growtree.GetUserName(client), "has exited")
+		return self.SendMsg(chatroom, GetUserName(client), "has exited")
 	}
 	return tcpx.NewMessage(client, "You have not joined a chatroom")
 }
@@ -109,7 +108,7 @@ func (self *ChatroomAction) Send(client *tcpx.Client, params map[string]string) 
 		return tcpx.NewMessage(client, "Please input msg")
 	}
 	if chatroom, ok := self.UserChatList[client]; ok {
-		return self.SendMsg(chatroom, growtree.GetUserName(client), params["msg"])
+		return self.SendMsg(chatroom, GetUserName(client), params["msg"])
 	}
 	return tcpx.NewMessage(client, "You have not joined a chatroom")
 }
@@ -124,6 +123,14 @@ func (self *ChatroomAction) SendMsg(chatroom *Chatroom, username string, msg str
 
 func (self *ChatroomAction) OnClose(client *tcpx.Client) {
 	self.Exit(client)
+}
+
+func GetUserName(client *tcpx.Client) (username string) {
+	username, ok := client.GetSharedPreferences("Auth").Get("username")
+	if !ok {
+		username = "匿名"
+	}
+	return
 }
 
 //check whether a closed client joined in a chatroom. if has, clean it.
