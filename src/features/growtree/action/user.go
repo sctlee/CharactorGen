@@ -56,6 +56,11 @@ func (self *UserAction) Login(client *tcpx.Client, params map[string]string) tcp
 		return tcpx.NewMessage(client, "Username or password error!")
 	} else {
 		self.userList[client] = user
+
+		// save login status in client.sharedPreferences
+		sp := client.GetSharedPreferences("Auth")
+		sp.Set("username", user.Name)
+
 		return tcpx.NewMessage(client, "Login Success!")
 	}
 }
