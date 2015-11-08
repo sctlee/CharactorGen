@@ -30,7 +30,3 @@ func Route(params map[string]string, client *tcpx.Client) tcpx.IMessage {
 	}
 	return responseMsg
 }
-
-func GetUserName(client *tcpx.Client) string {
-	return userAction.GetUserName(client)
-}
