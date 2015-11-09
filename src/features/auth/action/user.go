@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	. "features/growtree/model"
+	. "features/auth/model"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"

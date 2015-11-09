@@ -6,8 +6,8 @@ import (
 	"net"
 	"os"
 
+	"features/auth"
 	"features/chatroom"
-	"features/growtree"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/tcpx/db"
@@ -46,7 +46,7 @@ func startServer(port string) {
 	server := tcpx.CreateServer()
 	// Register Router
 	server.Routers["chatroom"] = chatroom.Route
-	server.Routers["growtree"] = growtree.Route
+	server.Routers["auth"] = growtree.Route
 	// End Register
 	server.Start("9000")
 }
