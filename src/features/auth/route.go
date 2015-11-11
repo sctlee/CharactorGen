@@ -1,9 +1,9 @@
-package growtree
+package auth
 
 import (
 	"fmt"
 
-	. "features/growtree/action"
+	. "features/auth/action"
 
 	"github.com/sctlee/tcpx"
 )

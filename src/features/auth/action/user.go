@@ -4,29 +4,17 @@ import (
 	"fmt"
 	"strings"
 
-	. "features/growtree/model"
+	. "features/auth/model"
 
 	"github.com/sctlee/tcpx"
 	"github.com/sctlee/utils"
 )
 
 type UserAction struct {
-	userList map[*tcpx.Client]*UserModel
 }
 
 func NewUserAction() *UserAction {
-	return &UserAction{
-		userList: make(map[*tcpx.Client]*UserModel),
-	}
-}
-
-func (self *UserAction) GetUserName(client *tcpx.Client) string {
-	s := self.userList[client]
-	if s != nil {
-		return s.Name
-	} else {
-		return "匿名"
-	}
+	return &UserAction{}
 }
 
 func (self *UserAction) SetUserName(client *tcpx.Client, params map[string]string) tcpx.IMessage {
@@ -35,9 +23,8 @@ func (self *UserAction) SetUserName(client *tcpx.Client, params map[string]strin
 	}
 	name := params["name"]
 
-	self.userList[client] = &UserModel{
-		Name: name,
-	}
+	//TODO: set user name
+
 	return tcpx.NewMessage(client, fmt.Sprintf("Hello, %s", name))
 }
 
@@ -55,8 +42,6 @@ func (self *UserAction) Login(client *tcpx.Client, params map[string]string) tcp
 	if err != nil {
 		return tcpx.NewMessage(client, "Username or password error!")
 	} else {
-		self.userList[client] = user
-
 		// save login status in client.sharedPreferences
 		sp := client.GetSharedPreferences("Auth")
 		sp.Set("username", user.Name)
@@ -66,8 +51,9 @@ func (self *UserAction) Login(client *tcpx.Client, params map[string]string) tcp
 }
 
 func (self *UserAction) Logout(client *tcpx.Client) tcpx.IMessage {
-	if _, ok := self.userList[client]; ok {
-		delete(self.userList, client)
+	sp := client.GetSharedPreferences("Auth")
+	if _, ok := sp.Get("name"); ok {
+		sp.Del("name")
 		return tcpx.NewMessage(client, "Logout success!")
 	} else {
 		return tcpx.NewMessage(client, "Please login first!")
