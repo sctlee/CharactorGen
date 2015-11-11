@@ -3,6 +3,7 @@ package chatroom
 import (
 	"fmt"
 
+	"features/auth"
 	. "features/chatroom/action"
 
 	"github.com/sctlee/tcpx"
@@ -27,7 +28,8 @@ func Route(params map[string]string, client *tcpx.Client) tcpx.IMessage {
 	case "exit":
 		responseMsg = chatroomAction.Exit(client)
 	case "send":
-		responseMsg = chatroomAction.Send(client, params)
+		f := auth.PermissionDecorate(client, chatroomAction.Send, auth.IsLogin)
+		responseMsg = f(client, params)
 	default:
 		return tcpx.NewMessage(client, fmt.Sprintf("no '%s' command", params["command"]))
 	}
