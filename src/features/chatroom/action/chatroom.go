@@ -39,6 +39,7 @@ func (self *ChatroomAction) initChatrooms() {
 			log.Println(err)
 		} else {
 			for _, ct := range ctList {
+				fmt.Println(ct)
 				self.ChatroomList[ct.Name] = &Chatroom{
 					ct: ct,
 				}
@@ -48,7 +49,7 @@ func (self *ChatroomAction) initChatrooms() {
 	}
 }
 
-func (self *ChatroomAction) List(client *tcpx.Client) tcpx.IMessage {
+func (self *ChatroomAction) List(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	self.initChatrooms()
 	return tcpx.NewMessage(client, fmt.Sprintf("You can choose one chatroom to join:\n%s",
 		strings.Join(CHATROMMS, "\t")))
@@ -75,7 +76,7 @@ func (self *ChatroomAction) Join(client *tcpx.Client, params map[string]string) 
 	ctName := params["ctName"]
 
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
-		self.Exit(client)
+		self.Exit(client, params)
 
 		client.SetOnCloseListener(self)
 
@@ -87,7 +88,7 @@ func (self *ChatroomAction) Join(client *tcpx.Client, params map[string]string) 
 	}
 }
 
-func (self *ChatroomAction) Exit(client *tcpx.Client) tcpx.IMessage {
+func (self *ChatroomAction) Exit(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	if chatroom, ok := self.UserChatList[client]; ok {
 		for i, c := range chatroom.clients {
 			if c == client {
@@ -122,7 +123,7 @@ func (self *ChatroomAction) SendMsg(chatroom *Chatroom, username string, msg str
 }
 
 func (self *ChatroomAction) OnClose(client *tcpx.Client) {
-	self.Exit(client)
+	self.Exit(client, nil)
 }
 
 func GetUserName(client *tcpx.Client) (username string) {

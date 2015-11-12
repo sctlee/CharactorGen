@@ -45,8 +45,8 @@ func startServer(port string) {
 	fmt.Println("server")
 	server := tcpx.CreateServer()
 	// Register Router
-	server.Routers["chatroom"] = chatroom.Route
-	server.Routers["auth"] = auth.Route
+	server.Routers["chatroom"] = chatroom.Router
+	server.Routers["auth"] = auth.Router
 	// End Register
 	server.Start("9000")
 }

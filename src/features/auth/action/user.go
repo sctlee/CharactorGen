@@ -50,7 +50,7 @@ func (self *UserAction) Login(client *tcpx.Client, params map[string]string) tcp
 	}
 }
 
-func (self *UserAction) Logout(client *tcpx.Client) tcpx.IMessage {
+func (self *UserAction) Logout(client *tcpx.Client, params map[string]string) tcpx.IMessage {
 	sp := client.GetSharedPreferences("Auth")
 	if _, ok := sp.Get("name"); ok {
 		sp.Del("name")
