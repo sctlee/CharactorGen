@@ -54,16 +54,13 @@ func startServer(port string) {
 func startClient(ip string) {
 	fmt.Println("client")
 	fmt.Println(ip)
-	c, err := net.Dial("tcp", ip)
+	conn, err := net.Dial("tcp", ip)
 	if err != nil {
 		fmt.Println("hahah")
 		return
 	}
 
-	ic := &tcpx.TCPClient{
-		Conn: c,
-	}
-	client := tcpx.CreateClient(ic)
+	client := tcpx.CreateClient(conn)
 
 	in := bufio.NewReader(os.Stdin)
 	out := bufio.NewWriter(os.Stdout)

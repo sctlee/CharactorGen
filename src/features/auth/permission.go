@@ -11,12 +11,11 @@ const (
 )
 
 type Permission struct {
-	auth tcpx.SharedPreferences
 }
 
 func (self Permission) IsLogin(client *tcpx.Client) bool {
-	self.auth = client.GetSharedPreferences("Auth")
-	if _, ok := self.auth.Get("name"); ok {
+	auth := client.GetSharedPreferences("Auth")
+	if _, ok := auth.Get("name"); ok {
 		return true
 	}
 	return false
