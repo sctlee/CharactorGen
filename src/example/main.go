@@ -6,10 +6,11 @@ import (
 	"net"
 	"os"
 
-	"features/auth"
+	// "features/auth"
 	"features/chatroom"
 
 	"github.com/sctlee/tcpx"
+	"github.com/sctlee/tcpx/auth"
 	"github.com/sctlee/tcpx/db"
 )
 
