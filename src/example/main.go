@@ -10,32 +10,26 @@ import (
 	"features/chatroom"
 
 	"github.com/sctlee/tcpx"
-	"github.com/sctlee/tcpx/auth"
-	"github.com/sctlee/tcpx/db"
+	// "github.com/sctlee/tcpx/auth"
+	// "github.com/sctlee/tcpx/db"
 )
 
 func main() {
 	fmt.Println("Hello, Secret!")
 
-	var cf tcpx.Config
+	var cf *tcpx.Config
 	args := os.Args
 
 	if args == nil || len(args) < 2 {
 		fmt.Println("error")
 		return
 	}
-	if len(args) == 2 {
-		cf = tcpx.LoadConfig("config.yml")
-	} else if len(args) == 3 {
-		cf = tcpx.LoadConfig(args[2])
-	}
-	fmt.Println(cf)
+	cf = tcpx.LoadConfig()
 
 	switch args[1] {
 	case "client":
 		startClient(":" + cf.Port)
 	case "server":
-		db.StartPool(cf.Db)
 		startServer(cf.Port)
 	default:
 		fmt.Println("error")
@@ -44,12 +38,12 @@ func main() {
 
 func startServer(port string) {
 	fmt.Println("server")
-	server := tcpx.CreateServer()
+	server := tcpx.CreateMainServer()
 	// Register Router
 	server.Routers["chatroom"] = chatroom.Router
-	server.Routers["auth"] = auth.Router
+	// server.Routers["auth"] = auth.Router
 	// End Register
-	server.Start("9000")
+	server.Start(port)
 }
 
 func startClient(ip string) {
@@ -57,7 +51,7 @@ func startClient(ip string) {
 	fmt.Println(ip)
 	conn, err := net.Dial("tcp", ip)
 	if err != nil {
-		fmt.Println("hahah")
+		fmt.Println(err)
 		return
 	}
 
