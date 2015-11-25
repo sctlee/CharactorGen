@@ -9,25 +9,26 @@ import (
 	. "features/chatroom/model"
 
 	"github.com/sctlee/tcpx"
+	"github.com/sctlee/tcpx/daemon/message"
 	"github.com/sctlee/utils"
 )
 
 var CHATROMMS = []string{}
 
 type ChatroomAction struct {
-	ChatroomList map[string]*Chatroom
-	UserChatList map[tcpx.ClientID]*Chatroom
+	ChatroomList map[string]*Chatroom // string is ctName
+	UserChatList map[string]*Chatroom // string is ClientID
 }
 
 type Chatroom struct {
 	ct   *ChatroomModel
-	cids []tcpx.ClientID
+	cids []string
 }
 
 func NewChatroomAction() *ChatroomAction {
 	return &ChatroomAction{
 		ChatroomList: make(map[string]*Chatroom, 10),
-		UserChatList: make(map[tcpx.ClientID]*Chatroom),
+		UserChatList: make(map[string]*Chatroom),
 	}
 }
 
@@ -49,97 +50,107 @@ func (self *ChatroomAction) initChatrooms() {
 	}
 }
 
-func (self *ChatroomAction) List(cid tcpx.ClientID, params map[string]string) {
+func (self *ChatroomAction) List(msg *message.Message) {
 	self.initChatrooms()
-	msg := tcpx.NewMessage(cid,
+
+	response := message.NewSimpleMessage(msg.Src,
 		fmt.Sprintf("You can choose one chatroom to join:\n%s",
 			strings.Join(CHATROMMS, "\t")))
-	tcpx.SendMessage(msg)
+	tcpx.SendMessage(response)
 }
 
-func (self *ChatroomAction) View(cid tcpx.ClientID, params map[string]string) {
-	if !utils.IsExistInMap(params, "ctName") {
-		tcpx.SendMessage(tcpx.NewMessage(cid, "Please input ctName"))
+func (self *ChatroomAction) View(msg *message.Message) {
+	if !utils.IsExistInMap(msg.Params, "ctName") {
+		response := message.NewSimpleMessage(msg.Src,
+			"Please input ctName")
+		tcpx.SendMessage(response)
 		return
 	}
-	ctName := params["ctName"]
+	ctName := msg.Params["ctName"]
 
-	var msg tcpx.IMessage
+	var response *message.Message
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
-		msg = tcpx.NewMessage(cid,
+		response = message.NewSimpleMessage(msg.Src,
 			fmt.Sprintf("%d", len(self.ChatroomList[ctName].cids)))
 	} else {
-		msg = tcpx.NewMessage(cid, "the chatroom is not existed")
+		response = message.NewSimpleMessage(msg.Src,
+			"the chatroom is not existed")
 	}
-	tcpx.SendMessage(msg)
+	tcpx.SendMessage(response)
 }
-func (self *ChatroomAction) Join(cid tcpx.ClientID, params map[string]string) {
+func (self *ChatroomAction) Join(msg *message.Message) {
 	self.initChatrooms()
 
-	if !utils.IsExistInMap(params, "ctName") {
-		tcpx.SendMessage(tcpx.NewMessage(cid, "Please input ctName"))
+	if !utils.IsExistInMap(msg.Params, "ctName") {
+		tcpx.SendMessage(message.NewSimpleMessage(msg.Src,
+			"Please input ctName"))
 		return
 	}
-	ctName := params["ctName"]
+	ctName := msg.Params["ctName"]
 
 	if utils.StringInSlice(ctName, CHATROMMS) != -1 {
-		self.Exit(cid, params)
+		self.Exit(msg)
 
 		// TODO: event manager
 		// cid.SetOnCloseListener(self)
 
-		self.UserChatList[cid] = self.ChatroomList[ctName]
-		self.ChatroomList[ctName].cids = append(self.ChatroomList[ctName].cids, cid)
-		tcpx.SendMessage(tcpx.NewMessage(cid, fmt.Sprintf("you have joined <%s> chatroom", ctName)))
+		self.UserChatList[msg.Src] = self.ChatroomList[ctName]
+		self.ChatroomList[ctName].cids = append(self.ChatroomList[ctName].cids, msg.Src)
+		tcpx.SendMessage(message.NewSimpleMessage(msg.Src,
+			fmt.Sprintf("you have joined <%s> chatroom", ctName)))
 	} else {
-		tcpx.SendMessage(tcpx.NewMessage(cid, fmt.Sprintf("<%s> chatroom is not existed", ctName)))
+		tcpx.SendMessage(message.NewSimpleMessage(msg.Src,
+			fmt.Sprintf("<%s> chatroom is not existed", ctName)))
 	}
 }
 
-func (self *ChatroomAction) Exit(cid tcpx.ClientID, params map[string]string) {
-	if chatroom, ok := self.UserChatList[cid]; ok {
+func (self *ChatroomAction) Exit(msg *message.Message) {
+	if chatroom, ok := self.UserChatList[msg.Src]; ok {
 		for i, c := range chatroom.cids {
-			if c == cid {
+			if c == msg.Src {
 				chatroom.cids = append(chatroom.cids[:i],
 					chatroom.cids[i+1:]...)
 				// cid.PutOutgoing(fmt.Sprintf("you have exited <%s> chatroom", chatroom.ct.Name))
 				break
 			}
 		}
-		delete(self.UserChatList, cid)
+		delete(self.UserChatList, msg.Src)
 		// self.SendMsg(chatroom, GetUserName(cid), "has exited")
 		self.SendMsg(chatroom, "haha", "has exited")
 	}
 }
 
-func (self *ChatroomAction) Send(cid tcpx.ClientID, params map[string]string) {
-	if !utils.IsExistInMap(params, "msg") {
-		tcpx.SendMessage(tcpx.NewMessage(cid, "Please input msg"))
+func (self *ChatroomAction) Send(msg *message.Message) {
+	if !utils.IsExistInMap(msg.Params, "msg") {
+		tcpx.SendMessage(message.NewSimpleMessage(msg.Src,
+			"Please input msg"))
 		return
 	}
-	if chatroom, ok := self.UserChatList[cid]; ok {
+	if chatroom, ok := self.UserChatList[msg.Src]; ok {
 		// self.SendMsg(chatroom, GetUserName(cid), params["msg"])
-		self.SendMsg(chatroom, "haha", params["msg"])
+		self.SendMsg(chatroom, "haha", msg.Params["msg"])
 	} else {
-		tcpx.SendMessage(tcpx.NewMessage(cid, "You have not joined a chatroom"))
+		tcpx.SendMessage(message.NewSimpleMessage(msg.Src,
+			"You have not joined a chatroom"))
 	}
 }
 
 func (self *ChatroomAction) SendMsg(chatroom *Chatroom, username string, msg string) {
-	fatalCids := []tcpx.ClientID{"1.0", "0.0"}
-	tcpx.SendMessage(tcpx.NewBoardMessage("",
+	// fatalCids := []string{"1.0", "0.0"}
+	response := message.NewSimpleBoardMessage(
+		chatroom.cids,
 		fmt.Sprintf("%s says: %s",
 			username,
-			msg),
-		// chatroom.cid))
-		fatalCids))
+			msg))
+	tcpx.SendMessage(response)
+
 }
 
-func (self *ChatroomAction) OnClose(cid tcpx.ClientID) {
-	self.Exit(cid, nil)
-}
+// func (self *ChatroomAction) OnClose(cid daemon.ClientID) {
+// 	self.Exit(cid, nil)
+// }
 
-// func GetUserName(cid tcpx.ClientID) (username string) {
+// func GetUserName(cid daemon.ClientID) (username string) {
 // username, ok := cid.GetSharedPreferences("Auth").Get("username")
 // if !ok {
 // 	username = "匿名"
@@ -153,7 +164,7 @@ func (self *ChatroomAction) OnClose(cid tcpx.ClientID) {
 // 		select {
 // 		case <-time.After(time.Second * 2):
 // 			for k, _ := range userChatList {
-// 				if k.State == tcpx.cid_STATE_CLOSE {
+// 				if k.State == daemon.cid_STATE_CLOSE {
 // 					Exit(k)
 // 				}
 // 			}
