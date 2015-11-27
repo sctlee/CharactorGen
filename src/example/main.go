@@ -10,6 +10,7 @@ import (
 	"features/chatroom"
 
 	"github.com/sctlee/tcpx"
+	"github.com/sctlee/tcpx/auth"
 	"github.com/sctlee/tcpx/daemon/service"
 	"github.com/sctlee/tcpx/tcpx/client"
 
@@ -43,7 +44,8 @@ func startServer(cf *tcpx.Config) {
 	fmt.Println("server")
 	// Register Router
 	tcpx.MainDaemon(cf,
-		service.NewService("chatroom", chatroom.Router))
+		service.NewService("chatroom", chatroom.NewChatroomAction()),
+		service.NewService("auth", auth.NewAuthAction()))
 	// server.Routers["auth"] = auth.Router
 	// End Register
 }
@@ -57,7 +59,7 @@ func startClient(ip string) {
 	}
 	fmt.Println(ip)
 
-	client := client.CreateClient(conn)
+	client := client.CreateClient(conn, "")
 
 	in := bufio.NewReader(os.Stdin)
 	out := bufio.NewWriter(os.Stdout)
