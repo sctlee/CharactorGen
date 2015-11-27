@@ -1,7 +1,8 @@
 main
+test
 pkg
 bin
-gen.log
+tcpx.log
 goenv.sh
 github.com
 conn_config.go

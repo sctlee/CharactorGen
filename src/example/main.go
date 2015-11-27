@@ -6,64 +6,60 @@ import (
 	"net"
 	"os"
 
+	// "features/auth"
 	"features/chatroom"
-	"features/growtree"
 
 	"github.com/sctlee/tcpx"
-	"github.com/sctlee/tcpx/db"
+	"github.com/sctlee/tcpx/auth"
+	"github.com/sctlee/tcpx/daemon/service"
+	"github.com/sctlee/tcpx/tcpx/client"
+
+	// "github.com/sctlee/tcpx/auth"
+	// "github.com/sctlee/tcpx/db"
 )
 
 func main() {
 	fmt.Println("Hello, Secret!")
 
-	var cf tcpx.Config
+	var cf *tcpx.Config
 	args := os.Args
 
 	if args == nil || len(args) < 2 {
 		fmt.Println("error")
 		return
 	}
-	if len(args) == 2 {
-		cf = tcpx.LoadConfig("config.yml")
-	} else if len(args) == 3 {
-		cf = tcpx.LoadConfig(args[2])
-	}
-	fmt.Println(cf)
+	cf = tcpx.LoadConfig()
 
 	switch args[1] {
 	case "client":
 		startClient(":" + cf.Port)
 	case "server":
-		db.StartPool(cf.Db)
-		startServer(cf.Port)
+		startServer(cf)
 	default:
 		fmt.Println("error")
 	}
 }
 
-func startServer(port string) {
+func startServer(cf *tcpx.Config) {
 	fmt.Println("server")
-	server := tcpx.CreateServer()
 	// Register Router
-	server.Routers["chatroom"] = chatroom.Route
-	server.Routers["growtree"] = growtree.Route
+	tcpx.MainDaemon(cf,
+		service.NewService("chatroom", chatroom.NewChatroomAction()),
+		service.NewService("auth", auth.NewAuthAction()))
+	// server.Routers["auth"] = auth.Router
 	// End Register
-	server.Start("9000")
 }
 
 func startClient(ip string) {
 	fmt.Println("client")
-	fmt.Println(ip)
-	c, err := net.Dial("tcp", ip)
+	conn, err := net.Dial("tcp", ip)
 	if err != nil {
-		fmt.Println("hahah")
+		fmt.Println(err)
 		return
 	}
+	fmt.Println(ip)
 
-	ic := &tcpx.TCPClient{
-		Conn: c,
-	}
-	client := tcpx.CreateClient(ic)
+	client := client.CreateClient(conn, "")
 
 	in := bufio.NewReader(os.Stdin)
 	out := bufio.NewWriter(os.Stdout)
