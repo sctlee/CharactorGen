@@ -2,7 +2,7 @@ main
 test
 pkg
 bin
-tcpx.log
+hazel.log
 goenv.sh
 github.com
 conn_config.go

@@ -6,10 +6,10 @@ The first function is chatroom based on a simple tcp framework.
 # Recent activity
 Use new protocol, eg. `chatroom.send|msg:haha`
 2015-11-6 21:41
-Use the new feature of [tcpx](http://github.com/sctlee/tcpx): Delegation
+Use the new feature of [hazel](http://github.com/sctlee/hazel): Delegation
 Use Message to send msg to clients, including boardcast.
 
-More details seen in [tcpx](http://github.com/sctlee/tcpx)
+More details seen in [hazel](http://github.com/sctlee/hazel)
 
 # Install
 #### Go installation
@@ -20,9 +20,9 @@ sudo apt-get install go-lang
 ```
 
 #### Dependence
-This project is based on [tcpx](http://github.com/sctlee/tcpx) and [utils](http://github.com/sctlee/utils). You can get it by the command:
+This project is based on [hazel](http://github.com/sctlee/hazel) and [utils](http://github.com/sctlee/utils). You can get it by the command:
 ```shell
-go get github.com/sctlee/tcpx
+go get github.com/sctlee/hazel
 go get github.com/sctlee/utils
 ```
 Be careful, You may want to `cd /path/to/example` and `export GOPATH=$(pwd):$GOPATH`, the exec the above commands.

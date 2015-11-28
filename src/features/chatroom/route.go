@@ -1,7 +1,7 @@
 package chatroom
 
 import (
-	"github.com/sctlee/tcpx/daemon/service"
+	"github.com/sctlee/hazel/daemon/service"
 )
 
 func (self *ChatroomAction) GetRouteList() service.RouteList {

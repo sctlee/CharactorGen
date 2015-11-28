@@ -9,26 +9,26 @@ import (
 	// "features/auth"
 	"features/chatroom"
 
-	"github.com/sctlee/tcpx"
-	"github.com/sctlee/tcpx/auth"
-	"github.com/sctlee/tcpx/daemon/service"
-	"github.com/sctlee/tcpx/tcpx/client"
+	"github.com/sctlee/hazel"
+	"github.com/sctlee/hazel/auth"
+	"github.com/sctlee/hazel/daemon/service"
+	"github.com/sctlee/hazel/tcpx/client"
 
-	// "github.com/sctlee/tcpx/auth"
-	// "github.com/sctlee/tcpx/db"
+	// "github.com/sctlee/hazel/auth"
+	// "github.com/sctlee/hazel/db"
 )
 
 func main() {
 	fmt.Println("Hello, Secret!")
 
-	var cf *tcpx.Config
+	var cf *hazel.Config
 	args := os.Args
 
 	if args == nil || len(args) < 2 {
 		fmt.Println("error")
 		return
 	}
-	cf = tcpx.LoadConfig()
+	cf = hazel.LoadConfig()
 
 	switch args[1] {
 	case "client":
@@ -40,10 +40,10 @@ func main() {
 	}
 }
 
-func startServer(cf *tcpx.Config) {
+func startServer(cf *hazel.Config) {
 	fmt.Println("server")
 	// Register Router
-	tcpx.MainDaemon(cf,
+	hazel.MainDaemon(cf,
 		service.NewService("chatroom", chatroom.NewChatroomAction()),
 		service.NewService("auth", auth.NewAuthAction()))
 	// server.Routers["auth"] = auth.Router

@@ -3,9 +3,9 @@ package chatroom
 import (
 	"time"
 
-	"github.com/sctlee/tcpx"
-	"github.com/sctlee/tcpx/daemon"
-	"github.com/sctlee/tcpx/daemon/message"
+	"github.com/sctlee/hazel"
+	"github.com/sctlee/hazel/daemon"
+	"github.com/sctlee/hazel/daemon/message"
 )
 
 func GetUserName(cid string, originalMsg *message.Message) (username string) {
@@ -13,7 +13,7 @@ func GetUserName(cid string, originalMsg *message.Message) (username string) {
 		map[string]string{"command": "getusername", "cid": cid},
 		daemon.MESSAGE_TYPE_TOSERVICE)
 	message.CopySession(originalMsg, request)
-	tcpx.SendMessage(request)
+	hazel.SendMessage(request)
 	select {
 	case msg := <-request.Response:
 		return msg.Params["username"]

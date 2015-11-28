@@ -1,14 +1,14 @@
 package task
 
 import (
-	"github.com/sctlee/tcpx"
+	"github.com/sctlee/hazel"
 )
 
-func Publish(client *tcpx.Client, params map[string]string) {
+func Publish(client *hazel.Client, params map[string]string) {
 }
 
-func Build(client *tcpx.Client, params map[string]string) {
+func Build(client *hazel.Client, params map[string]string) {
 }
 
-func Accept(client *tcpx.Client, params map[string]string) {
+func Accept(client *hazel.Client, params map[string]string) {
 }

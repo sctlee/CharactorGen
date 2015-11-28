@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/sctlee/tcpx/db"
+	"github.com/sctlee/hazel/db"
 )
 
 type ChatroomModel struct {

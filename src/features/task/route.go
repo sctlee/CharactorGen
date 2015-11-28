@@ -3,10 +3,10 @@ package task
 import (
 	"strings"
 
-	"github.com/sctlee/tcpx"
+	"github.com/sctlee/hazel"
 )
 
-func Route(url string, client *tcpx.Client) {
+func Route(url string, client *hazel.Client) {
 	var action string
 	url = strings.TrimSpace(url)
 	i := strings.Index(url, " ")

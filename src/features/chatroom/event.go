@@ -1,8 +1,8 @@
 package chatroom
 
 import (
-	"github.com/sctlee/tcpx"
-	"github.com/sctlee/tcpx/daemon"
+	"github.com/sctlee/hazel"
+	"github.com/sctlee/hazel/daemon"
 )
 
 func (self *ChatroomAction) OnClientQuit(cid string) {
@@ -12,5 +12,5 @@ func (self *ChatroomAction) OnClientQuit(cid string) {
 	msg.Command = "exit"
 	msg.Params = make(map[string]string)
 	msg.Type = daemon.MESSAGE_TYPE_TOSERVICE
-	tcpx.SendMessage(msg)
+	hazel.SendMessage(msg)
 }
