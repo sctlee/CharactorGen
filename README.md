@@ -64,3 +64,42 @@ User feature has three command: login, logout, setName
 ```
 
 Because db has not been supported, user's name is fake. It means you can't sign up and the name you set can't be saved.
+
+#Docker Deployment
+If you have not known [docker](https://www.docker.com), learn it.
+
+__Pull two images__, [postgres](https://hub.docker.com/_/postgres/) and [redis](https://hub.docker.com/_/redis/)
+```shell
+docker pull postgres
+docker pull redis
+```
+If you use DaoCloud Tools, you can do this:
+```shell
+dao pull postgres
+dao pull redis
+```
+It will be extremely fast! in TianChao.
+
+__Build hazel images__, hazel for (hazel)[github.com/sctlee/hazel], hazel-server for (hazel_example)(github.com/sctlee/hazel_example)
+```shell
+docker build -t hazel:1.1 .
+docker build -t hazel-server:1.1 .
+```
+!!You should build the image after modifying the config.yml.example.
+
+__Then run three containers__ by three command in bash respectively.
+```shell
+docker run --rm --name hazel_postgres -v /Users/Secret/Codes/Projects/hazel_example/test/posgres/:/docker-entrypoint-initdb.d -e POSTGRES_USER=Secret postgres
+docker run --rm --name hazel_redis redis
+docker run --rm -it -p 8080:9000 --link hazel_postgres:pg --link hazel_redis:rd hazel-server:1.1
+```
+What you should notice is the flag `-v`, I copy the sql scripts to postgresql for init the database. See the [postgres](https://hub.docker.com/_/postgres/) for more details.
+
+__Finially, run the hazel__.
+```shell
+example server
+```
+You can connect the server in your host computer
+```shell
+example client 192.168.99.100:8080
+```
