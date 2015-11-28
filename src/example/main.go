@@ -21,19 +21,18 @@ import (
 func main() {
 	fmt.Println("Hello, Secret!")
 
-	var cf *hazel.Config
 	args := os.Args
-
-	if args == nil || len(args) < 2 {
-		fmt.Println("error")
-		return
-	}
-	cf = hazel.LoadConfig()
 
 	switch args[1] {
 	case "client":
-		startClient(":" + cf.Port)
+		startClient(args[2])
 	case "server":
+		var cf *hazel.Config
+		if args == nil || len(args) < 2 {
+			fmt.Println("error")
+			return
+		}
+		cf = hazel.LoadConfig()
 		startServer(cf)
 	default:
 		fmt.Println("error")
@@ -41,7 +40,7 @@ func main() {
 }
 
 func startServer(cf *hazel.Config) {
-	fmt.Println("server")
+	fmt.Println("server listen port:", cf.Port)
 	// Register Router
 	hazel.MainDaemon(cf,
 		service.NewService("chatroom", chatroom.NewChatroomAction()),

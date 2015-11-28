@@ -1,7 +1,13 @@
+servername: 0
 host: 127.0.0.1
 port: 9000
+logfile: hazel.log
 db:
-  host: 127.0.0.1
-  user: username
+  host: pg
+  user: <POSTGRES_USER> //refer:https://hub.docker.com/_/postgres/
   password:
-  database: database_name
+  database: <DATABASE_NAME>
+redis:
+  name: redis-server
+  host: rd
+  port: 6379
