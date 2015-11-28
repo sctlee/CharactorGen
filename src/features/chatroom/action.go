@@ -8,10 +8,10 @@ import (
 
 	. "features/chatroom/model"
 
-	"github.com/sctlee/tcpx"
-	"github.com/sctlee/tcpx/daemon"
-	"github.com/sctlee/tcpx/daemon/message"
-	"github.com/sctlee/tcpx/db"
+	"github.com/sctlee/hazel"
+	"github.com/sctlee/hazel/daemon"
+	"github.com/sctlee/hazel/daemon/message"
+	"github.com/sctlee/hazel/db"
 	"github.com/sctlee/utils"
 
 	"github.com/garyburd/redigo/redis"
@@ -76,7 +76,7 @@ func (self *ChatroomAction) List(msg *message.Message) {
 	chatrooms, err := redis.Strings(conn.Do("LRANGE", "chatrooms", "0", "-1"))
 	if err != nil {
 		fmt.Println("redis error:", err)
-		tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+		hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 			"service error"))
 	}
 	fmt.Printf("%t", chatrooms)
@@ -84,14 +84,14 @@ func (self *ChatroomAction) List(msg *message.Message) {
 		fmt.Sprintf("You can choose one chatroom to join:\n%s",
 			strings.Join(chatrooms, "\t")))
 	//original way: CHATROOMS -> chatrooms
-	tcpx.SendMessage(response)
+	hazel.SendMessage(response)
 }
 
 func (self *ChatroomAction) View(msg *message.Message) {
 	if !utils.IsExistInMap(msg.Params, "ctName") {
 		response := daemon.NewSimpleMessage(msg.Src,
 			"Please input ctName")
-		tcpx.SendMessage(response)
+		hazel.SendMessage(response)
 		return
 	}
 	conn := db.RedisPool.Get()
@@ -117,11 +117,11 @@ func (self *ChatroomAction) View(msg *message.Message) {
 		response = daemon.NewSimpleMessage(msg.Src,
 			"the chatroom is not existed")
 	}
-	tcpx.SendMessage(response)
+	hazel.SendMessage(response)
 }
 func (self *ChatroomAction) Join(msg *message.Message) {
 	if !utils.IsExistInMap(msg.Params, "ctName") {
-		tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+		hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 			"Please input ctName"))
 		return
 	}
@@ -152,14 +152,14 @@ func (self *ChatroomAction) Join(msg *message.Message) {
 		err1 := conn.Send("HSET", msg.Src, "chatroom", ctName)
 		err2 := conn.Send("LPUSH", "chatroom:"+ctName, msg.Src)
 		if err1 != nil || err2 != nil {
-			tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+			hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 				fmt.Sprintf("Failed")))
 			return
 		}
-		tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+		hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 			fmt.Sprintf("you have joined <%s> chatroom", ctName)))
 	} else {
-		tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+		hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 			fmt.Sprintf("<%s> chatroom is not existed", ctName)))
 	}
 }
@@ -197,11 +197,11 @@ func (self *ChatroomAction) Exit(msg *message.Message) {
 		cids, err := redis.Strings(conn.Do("LRANGE", "chatroom:"+ctName, "0", "-1"))
 		if err != nil {
 			fmt.Println("redis error:", err)
-			tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+			hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 				fmt.Sprintf("Failed")))
 			return
 		}
-		tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+		hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 			fmt.Sprintf("Quited Success")))
 
 		self.SendMsg(cids, GetUserName(msg.Src, msg), "has exited")
@@ -210,7 +210,7 @@ func (self *ChatroomAction) Exit(msg *message.Message) {
 
 func (self *ChatroomAction) Send(msg *message.Message) {
 	if !utils.IsExistInMap(msg.Params, "msg") {
-		tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+		hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 			"Please input msg"))
 		return
 	}
@@ -227,7 +227,7 @@ func (self *ChatroomAction) Send(msg *message.Message) {
 		self.SendMsg(cids, GetUserName(msg.Src, msg), msg.Params["msg"])
 		// self.SendMsg(chatroom, GetUserName(msg, msg.Response), msg.Params["msg"])
 	} else {
-		tcpx.SendMessage(daemon.NewSimpleMessage(msg.Src,
+		hazel.SendMessage(daemon.NewSimpleMessage(msg.Src,
 			"You have not joined a chatroom"))
 	}
 }
@@ -242,7 +242,7 @@ func (self *ChatroomAction) SendMsg(cids []string, username string, msg string) 
 		fmt.Sprintf("%s says: %s",
 			username,
 			msg))
-	tcpx.SendMessage(response)
+	hazel.SendMessage(response)
 
 }
 
