@@ -49,7 +49,7 @@ func (self *ChatroomAction) initChatrooms() {
 		log.Println("Init ChatroomModel")
 		ctList, err := ListChatroomModel()
 		if err != nil {
-			log.Println(err)
+			log.Println("example error:", err)
 		} else {
 			for _, ct := range ctList {
 				fmt.Println(ct)

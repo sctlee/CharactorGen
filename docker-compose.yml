@@ -1,0 +1,18 @@
+server:
+  build: .
+  dockerfile: Dockerfile_test
+  ports:
+    - "8080:9000"
+  links:
+    - redis-master:rd
+    - postgres:pg
+
+postgres:
+  image: postgres
+  environment:
+    - POSTGRES_USER=Secret
+  volumes:
+    - ./test/postgres:/docker-entrypoint-initdb.d
+
+redis-master:
+  image: redis
