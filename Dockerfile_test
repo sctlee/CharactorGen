@@ -12,7 +12,7 @@ COPY . $HAZEL
 RUN cd $HAZEL && go install example
 
 RUN mkdir work_env
-RUN cp $HAZEL/config.yml.example work_env/config.yml
+RUN cp $HAZEL/test/0/config.yml work_env/config.yml
 
 WORKDIR work_env
-CMD /bin/bash
+CMD example server
